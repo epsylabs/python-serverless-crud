@@ -1,0 +1,5 @@
+id = "python-serverless-crud"
+name = "python-serverless-crud"
+description = "Serverless CRUD API made easy"
+tags = []
+features = [ "global", "git", "github", "bootstrap", "sentry", "aws",]
