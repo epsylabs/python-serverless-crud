@@ -3,15 +3,32 @@ name = "python-serverless-crud"
 version = "0.1.0"
 homepage = "https://github.com/epsyhealth/python-serverless-crud.git"
 description = "Serverless CRUD API made easy"
+readme = "README.md"
 authors = ["Epsy <engineering@epsyhealth.com>"]
 license = "MIT"
 
+packages = [
+    { include = "serverless_crud" }
+]
+
+[[tool.poetry.source]]
+url = "https://pypi.fury.io/epsy/"
+name = "fury"
+
 [tool.poetry.dependencies]
 python = "^3.8.12"
+sentry-sdk = {version="^1.5.2", optional=true}
+aws-lambda-powertools = {extras = ["pydantic"], version = "^1.24.0"}
+graphene = "^3.0"
+epsy-power-tools = "^0.4.0"
+
+[tool.poetry.extras]
+sentry = ["sentry-sdk"]
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
 isort = "^5.10"
+troposphere = "^3.2.2"
 
 [tool.black]
 line-length = 120
