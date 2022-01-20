@@ -48,21 +48,21 @@ class API(BaseAPI):
         router = Router()
 
         if get_callback:
-            @router.resolver(type_name="Query", field_name=f"get{model._meta}")
+            @router.resolver(type_name="Query", field_name=f"get{alias}")
             def get(*args, **kwargs):
                 primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
 
                 return get_callback(*args, primary_key=primary_key, event=router.current_event,
                                     context=router.lambda_context)
 
-        if create_callback:
-            @router.resolver(type_name="Mutation", field_name=f"create{alias}")
-            def create():
-                response, obj = create_callback(router.current_event, router.lambda_context)
-                # if isinstance(obj, Response):
-                #     return obj
-
-                return JsonResponse(201, obj.dict())
+        # if create_callback:
+        #     @router.resolver(type_name="Mutation", field_name=f"create{alias}")
+        #     def create():
+        #         response, obj = create_callback(router.current_event, router.lambda_context)
+        #         # if isinstance(obj, Response):
+        #         #     return obj
+        #
+        #         return JsonResponse(201, obj.dict())
         #
         # if update_callback:
         #     @router.put(id_route_pattern)
@@ -86,17 +86,17 @@ class API(BaseAPI):
         #
         #         return JsonResponse(200, {})
 
-        if lookup_list_callback:
-            def lookup_list(index=None, *args, **kwargs):
-                response, objs = lookup_list_callback(index_name=index, event=router.current_event,
-                                                      context=router.lambda_context, *args, **kwargs)
-
-                # if isinstance(objs, Response):
-                #     return objs
-
-                return JsonResponse(200, [obj.dict() for obj in objs])
-
-            router.resolver(type_name="Query", field_name=f"list{alias}s")(lookup_list)
+        # if lookup_list_callback:
+        #     def lookup_list(index=None, *args, **kwargs):
+        #         response, objs = lookup_list_callback(index_name=index, event=router.current_event,
+        #                                               context=router.lambda_context, *args, **kwargs)
+        #
+        #         # if isinstance(objs, Response):
+        #         #     return objs
+        #
+        #         return JsonResponse(200, [obj.dict() for obj in objs])
+        #
+        #     router.resolver(type_name="Query", field_name=f"list{alias}s")(lookup_list)
             # router.get(f"/lookup/{alias}/list")(lookup_list)
 
         # if lookup_scan_callback:

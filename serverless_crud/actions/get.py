@@ -4,6 +4,8 @@ from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from serverless_crud.actions.base import Action
 from serverless_crud.dynamodb import with_dynamodb
 from serverless_crud.exceptions import EntityNotFoundException
+from serverless_crud.logger import logger
+from serverless_crud.utils import identity
 
 
 class GetAction(Action):
@@ -12,12 +14,22 @@ class GetAction(Action):
         try:
             self.validate(primary_key.raw(), self.model.key_schema())
 
-            params = dict(
+            query = dict(
                 Key=primary_key.raw(),
             )
 
-            respose = table.get_item(**params)
+            logger.debug("dynamodb.get_item", extra=query)
+            response = table.get_item(**query)
+            item = response.get("Item")
 
-            return respose, self.model(**respose.get("Item"))
+            if not item:
+                raise EntityNotFoundException()
+
+            obj = self.model(**item)
+
+            if self.model._meta.owner_field and getattr(obj, self.model._meta.owner_field) != identity(event):
+                raise EntityNotFoundException()
+
+            return response, obj
         except SchemaValidationError as e:
             raise EntityNotFoundException()

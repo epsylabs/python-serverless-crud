@@ -29,16 +29,6 @@ class API(BaseAPI):
         def handle_api_exception(ex: APIException):
             return ex.as_response()
 
-        # @self.app.exception_handler(ValueError)
-        # def handle_value_error(ex: ValueError):
-        #     metadata = {"path": self.app.current_event.path}
-        #
-        #     return Response(
-        #         status_code=400,
-        #         content_type=content_types.APPLICATION_JSON,
-        #         body='{"message": "Invalid request"}',
-        #     )
-
     def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
                  lookup_list=ListAction, lookup_scan=ScanAction, lookup_query=QueryAction):
         self.models.append(model)
@@ -75,7 +65,7 @@ class API(BaseAPI):
         if create_callback:
             @router.post(f"/{alias}")
             def create():
-                response, obj = create_callback(router.current_event, router.lambda_context)
+                response, obj = create_callback(payload=router.current_event.json_body, event=router.current_event, context=router.lambda_context)
                 if isinstance(obj, Response):
                     return obj
 
