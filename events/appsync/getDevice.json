@@ -1,6 +1,6 @@
 {
   "arguments": {
-    "id": "7e362732-c8cd-4405-b090-144ac9b38960"
+    "id": "242942344"
   },
   "identity": null,
   "source": null,
@@ -35,12 +35,14 @@
   "info": {
     "parentTypeName": "Query",
     "selectionSetList": [
-      "title",
-      "id"
+      "id",
+      "user",
+      "created"
     ],
-    "selectionSetGraphQL": "{\n  title\n  id\n}",
+    "selectionSetGraphQL": "{\n  id\n  user\n  created\n}",
     "fieldName": "getDevice",
-    "variables": {}
+    "variables": {
+    }
   },
   "stash": {}
 }
