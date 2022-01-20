@@ -9,13 +9,13 @@ from serverless_crud.model import BaseModel
 class CreateAction(Action):
     @with_dynamodb
     def handle(self, event: APIGatewayProxyEvent, context, table=None, dynamodb=None):
-        payload = self._set_owner(event, event.json_body)
-
-        obj: BaseModel = self._unpack(payload)
-        query = dict(Item=obj.dict(), ReturnValues='NONE', )
-        obj._meta.key.append_condition_expression(query)
-
         try:
+            payload = self._set_owner(event, event.json_body)
+
+            obj: BaseModel = self._unpack(payload)
+            query = dict(Item=obj.dict(), ReturnValues='NONE', )
+            obj._meta.key.append_condition_expression(query)
+
             result = table.put_item(**query)
 
             return result, obj

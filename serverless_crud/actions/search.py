@@ -1,8 +1,15 @@
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
+from pydantic import BaseModel, ValidationError
 
 from serverless_crud.actions.base import Action
-from serverless_crud.dynamodb.utils import serializer
 from serverless_crud.dynamodb import with_dynamodb
+from serverless_crud.dynamodb.utils import serializer
+from serverless_crud.exceptions import ValidationException
+
+
+class SearchPayload(BaseModel):
+    query: str
+    parameters: dict
 
 
 class SearchAction(Action):
@@ -26,11 +33,9 @@ class SearchAction(Action):
 
     @with_dynamodb
     def handle(self, event: APIGatewayProxyEvent, context, dynamodb, table):
-        obj = self._unpack(event.json_body)
+        try:
+            payload = SearchPayload(**event.json_body)
 
-        if self.model._meta.owner_field:
-            self._query_index(f"by_{self.model._meta.owner_field}", event, table)
-        else:
-            self._scan_table(event, table)
-
-        return event.json_body
+            return event.json_body
+        except ValidationError as e:
+            raise ValidationException(e)

@@ -2,6 +2,7 @@ import json
 
 from aws_lambda_powertools.event_handler.api_gateway import Response
 from aws_lambda_powertools.event_handler.exceptions import NotFoundError, BadRequestError
+from pydantic import ValidationError
 
 
 class APIException(Exception):
@@ -31,5 +32,5 @@ class EntityNotFoundException(APIException, NotFoundError):
 
 
 class ValidationException(APIException, BadRequestError):
-    def __init__(self, e, *args: object) -> None:
-        super().__init__(http_code, message, json_body, *args)
+    def __init__(self, e: ValidationError, *args: object) -> None:
+        super().__init__(400, json_body=e.errors(), *args)

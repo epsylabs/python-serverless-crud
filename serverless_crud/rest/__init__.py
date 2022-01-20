@@ -2,6 +2,7 @@ from aws_lambda_powertools.event_handler import ApiGatewayResolver, content_type
 from aws_lambda_powertools.event_handler.api_gateway import Router, Response
 
 from serverless_crud.actions import *
+from serverless_crud.exceptions import APIException
 from serverless_crud.rest.http import JsonResponse
 from serverless_crud.service import API as BaseAPI
 
@@ -23,16 +24,19 @@ class API(BaseAPI):
         self.models = []
         self.app = ApiGatewayResolver(strip_prefixes=[f"/rest"])
 
-        @self.app.exception_handler(ValueError)
-        def handle_value_error(ex: ValueError):
-            metadata = {"path": self.app.current_event.path}
-            # logger.error(f"Malformed request: {ex}", extra=metadata)
+        @self.app.exception_handler(APIException)
+        def handle_api_exception(ex: APIException):
+            return ex.as_response()
 
-            return Response(
-                status_code=400,
-                content_type=content_types.APPLICATION_JSON,
-                body='{"message": "Invalid request"}',
-            )
+        # @self.app.exception_handler(ValueError)
+        # def handle_value_error(ex: ValueError):
+        #     metadata = {"path": self.app.current_event.path}
+        #
+        #     return Response(
+        #         status_code=400,
+        #         content_type=content_types.APPLICATION_JSON,
+        #         body='{"message": "Invalid request"}',
+        #     )
 
     def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
                  search=SearchAction):
@@ -97,7 +101,7 @@ class API(BaseAPI):
                 return JsonResponse(200, {})
 
         if search_callback:
-            @router.get(f"/{alias}")
+            @router.post(f"/lookup/{alias}")
             def search(*args, **kwargs):
                 return search_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
 
