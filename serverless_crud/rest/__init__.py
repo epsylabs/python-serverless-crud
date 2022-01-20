@@ -103,6 +103,20 @@ class API(BaseAPI):
         if search_callback:
             @router.post(f"/lookup/{alias}")
             def search(*args, **kwargs):
-                return search_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
+                response, objs = search_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
+
+                if isinstance(objs, Response):
+                    return objs
+
+                return JsonResponse(200, {})
+
+            @router.get(f"/lookup/{alias}/<index>")
+            def search_index(index, *args, **kwargs):
+                response, objs = search_callback(index=index, event=router.current_event, context=router.lambda_context, *args, **kwargs)
+
+                if isinstance(objs, Response):
+                    return objs
+
+                return JsonResponse(200, [obj.dict() for obj in objs])
 
         self.app.include_router(router)
