@@ -28,6 +28,8 @@ sentry = ["sentry-sdk"]
 black = "^21.12b0"
 isort = "^5.10"
 troposphere = "^3.2.2"
+pytest = "^6.2.5"
+moto = "^2.3.2"
 
 [tool.black]
 line-length = 120
