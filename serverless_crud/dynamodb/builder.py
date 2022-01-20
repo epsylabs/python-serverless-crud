@@ -1,13 +1,9 @@
-import inspect
-from functools import wraps
-
-import boto3
-from troposphere import dynamodb
-from troposphere.dynamodb import AttributeDefinition, KeySchema, Projection
+from troposphere.dynamodb import AttributeDefinition, KeySchema, Projection, GlobalSecondaryIndex
 from troposphere.dynamodb import LocalSecondaryIndex as AWSLocalSecondaryIndex, \
     GlobalSecondaryIndex as AWSGlobalSecondaryIndex, ProvisionedThroughput as AWSProvisionedThroughput
 
-from serverless_crud.model import BaseModel, DynamodbMetadata, LocalSecondaryIndex, GlobalSecondaryIndex, DynamoIndex
+from serverless_crud.dynamodb.annotation import DynamoIndex, DynamodbMetadata, LocalSecondaryIndex
+from serverless_crud.model import BaseModel
 
 PYTHON_TO_DYNAMODB = {
     int: "N",
@@ -70,22 +66,3 @@ def model_to_table_specification(model: BaseModel):
         LocalSecondaryIndexes=[AWSLocalSecondaryIndex(**create_index(index)) for index in meta.indexes if
                                type(index) == LocalSecondaryIndex],
     )
-
-
-dynamodb = boto3.client("dynamodb")
-
-
-def with_dynamodb(f):
-    @wraps(f)
-    def wrapper(self, *args, **kwds):
-        sig = inspect.signature(f)
-
-        if 'dynamodb' in sig.parameters:
-            kwds['dynamodb'] = dynamodb
-
-        if 'table' in sig.parameters:
-            kwds['table'] = boto3.resource("dynamodb").Table(self.model._meta.table_name)
-
-        return f(self, *args, **kwds)
-
-    return wrapper

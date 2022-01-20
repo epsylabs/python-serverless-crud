@@ -1,5 +1,5 @@
 from aws_lambda_powertools.event_handler import ApiGatewayResolver, content_types
-from aws_lambda_powertools.event_handler.api_gateway import Router
+from aws_lambda_powertools.event_handler.api_gateway import Router, Response
 
 from serverless_crud.actions import *
 from serverless_crud.service import API as BaseAPI
