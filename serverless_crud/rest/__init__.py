@@ -1,7 +1,8 @@
-from aws_lambda_powertools.event_handler import ApiGatewayResolver, content_types
+from aws_lambda_powertools.event_handler import ApiGatewayResolver
 from aws_lambda_powertools.event_handler.api_gateway import Router, Response
 
 from serverless_crud.actions import *
+from serverless_crud.actions.search import ListAction, ScanAction, QueryAction
 from serverless_crud.exceptions import APIException
 from serverless_crud.rest.http import JsonResponse
 from serverless_crud.service import API as BaseAPI
@@ -39,7 +40,7 @@ class API(BaseAPI):
         #     )
 
     def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
-                 search=SearchAction):
+                 lookup_list=ListAction, lookup_scan=ScanAction, lookup_query=QueryAction):
         self.models.append(model)
         self._create_model_app(
             model, alias,
@@ -47,14 +48,16 @@ class API(BaseAPI):
             create_callback=create(model) if create else None,
             update_callback=update(model) if update else None,
             delete_callback=delete(model) if delete else None,
-            search_callback=search(model) if search else None
+            lookup_list_callback=lookup_list(model) if lookup_list else None,
+            lookup_scan_callback=lookup_scan(model) if lookup_scan else None,
+            lookup_query_callback=lookup_query(model) if lookup_query else None,
         )
 
     def handle(self, event, context):
         return self.app.resolve(event, context)
 
     def _create_model_app(self, model, alias, get_callback, create_callback, update_callback, delete_callback,
-                          search_callback):
+                          lookup_list_callback, lookup_scan_callback, lookup_query_callback):
         router = Router()
 
         id_route_pattern = f"/{alias}/<{model._meta.key.partition_key}>"
@@ -93,30 +96,50 @@ class API(BaseAPI):
             def delete(*args, **kwargs):
                 primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
                 response, obj = delete_callback(*args, primary_key=primary_key, event=router.current_event,
-                                       context=router.lambda_context)
+                                                context=router.lambda_context)
 
                 if isinstance(obj, Response):
                     return obj
 
                 return JsonResponse(200, {})
 
-        if search_callback:
-            @router.post(f"/lookup/{alias}")
-            def search(*args, **kwargs):
-                response, objs = search_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
-
-                if isinstance(objs, Response):
-                    return objs
-
-                return JsonResponse(200, {})
-
-            @router.get(f"/lookup/{alias}/<index>")
-            def search_index(index, *args, **kwargs):
-                response, objs = search_callback(index=index, event=router.current_event, context=router.lambda_context, *args, **kwargs)
+        if lookup_list_callback:
+            def lookup_list(index=None, *args, **kwargs):
+                response, objs = lookup_list_callback(index_name=index, event=router.current_event,
+                                                      context=router.lambda_context, *args, **kwargs)
 
                 if isinstance(objs, Response):
                     return objs
 
                 return JsonResponse(200, [obj.dict() for obj in objs])
+
+            router.get(f"/lookup/{alias}/list/<index>")(lookup_list)
+            router.get(f"/lookup/{alias}/list")(lookup_list)
+
+        if lookup_scan_callback:
+            def lookup_scan(*args, **kwargs):
+                response, objs = lookup_scan_callback(event=router.current_event, context=router.lambda_context, *args,
+                                                      **kwargs)
+
+                if isinstance(objs, Response):
+                    return objs
+
+                return JsonResponse(200, [obj.dict() for obj in objs])
+
+            router.post(f"/lookup/{alias}/scan/<index>")(lookup_scan)
+            router.post(f"/lookup/{alias}/scan")(lookup_scan)
+
+        if lookup_query_callback:
+            def lookup_query(*args, **kwargs):
+                response, objs = lookup_query_callback(event=router.current_event, context=router.lambda_context, *args,
+                                                      **kwargs)
+
+                if isinstance(objs, Response):
+                    return objs
+
+                return JsonResponse(200, [obj.dict() for obj in objs])
+
+            router.post(f"/lookup/{alias}/query/<index>")(lookup_query)
+            router.post(f"/lookup/{alias}/query")(lookup_query)
 
         self.app.include_router(router)

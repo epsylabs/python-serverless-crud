@@ -20,7 +20,6 @@ python = "^3.8.2"
 sentry-sdk = {version="^1.5.2", optional=true}
 aws-lambda-powertools = {extras = ["pydantic"], version = "^1.24.0"}
 graphene = "^3.0"
-epsy-power-tools = "^0.4.0"
 
 [tool.poetry.extras]
 sentry = ["sentry-sdk"]

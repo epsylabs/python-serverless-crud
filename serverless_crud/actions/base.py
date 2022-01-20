@@ -12,7 +12,7 @@ from serverless_crud.utils import identity
 
 class Action(abc.ABC):
     def __init__(self, model):
-        self.model: BaseModel = model
+        self.model: type(BaseModel) = model
 
     def __call__(self, *args, **kwargs):
         return self.handle(*args, **kwargs)
