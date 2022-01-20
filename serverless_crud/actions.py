@@ -6,7 +6,6 @@ from aws_lambda_powertools.event_handler.exceptions import BadRequestError
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.parser import parse, ValidationError
 from aws_lambda_powertools.utilities.validation import validate, SchemaValidationError
-from boto3.dynamodb.conditions import Attr
 from boto3.dynamodb.types import TypeSerializer
 
 from serverless_crud.dynamodb import with_dynamodb
@@ -58,36 +57,30 @@ class Action(abc.ABC):
 
 
 class CreateAction(Action):
-    def validate(self, payload, schema):
-        return payload
-
     @with_dynamodb
     def handle(self, event: APIGatewayProxyEvent, context, table=None, dynamodb=None):
         payload = self._set_owner(event, event.json_body)
 
         obj: BaseModel = self._unpack(payload)
-
         query = dict(Item=obj.dict(), ReturnValues='NONE', )
-
         obj._meta.key.append_condition_expression(query)
 
         try:
             result = table.put_item(**query)
 
-            return result
+            return result, obj
         except dynamodb.exceptions.ConditionalCheckFailedException as e:
-            return Response(409, "Duplicated")
+            return Response(409, content_type="application/json", body="duplicated")
 
 
 class UpdateAction(Action):
     @with_dynamodb
     def handle(self, event: APIGatewayProxyEvent, context, table=None, dynamodb=None):
         payload = self._set_owner(event, event.json_body)
+        print(payload)
 
         obj: BaseModel = self._unpack(payload)
-
-        query = dict(Item=obj.dict(), ReturnValues='ALL', )
-
+        query = dict(Item=obj.dict(), ReturnValues='NONE', )
         obj._meta.key.append_condition_expression(query, "attribute_exists")
 
         try:
@@ -95,13 +88,10 @@ class UpdateAction(Action):
 
             return result
         except dynamodb.exceptions.ConditionalCheckFailedException as e:
-            return Response(404, "Not found")
+            return Response(404, content_type="application/json", body="not found")
 
 
 class GetAction(Action):
-    def conditions(self):
-        return []
-
     @with_dynamodb
     def handle(self, primary_key, event: APIGatewayProxyEvent = None, context=None, table=None):
         try:
@@ -115,26 +105,28 @@ class GetAction(Action):
 
 
 class DeleteAction(Action):
-    def delete_condition(self, event: APIGatewayProxyEvent):
+    def append_delete_condition(self, params, event: APIGatewayProxyEvent):
         if not self.model._meta.owner_field:
             return
 
-        return Attr(self.model._meta.owner_field).eq(identity(event))
+        params["ConditionExpression"] = f"#user = :user"
+        params["ExpressionAttributeNames"] = {"#user": self.model._meta.owner_field}
+        params["ExpressionAttributeValues"] = {":user": identity(event)}
 
     @with_dynamodb
-    def handle(self, primary_key, event: APIGatewayProxyEvent, context, table):
+    def handle(self, primary_key, event: APIGatewayProxyEvent, context, table, dynamodb):
         try:
             self.validate(primary_key.raw(), self.model.key_schema())
 
             params = dict(Key=primary_key.raw(), )
 
-            condition = self.delete_condition(event)
-            if condition:
-                params["ConditionExpression"] = condition
+            self.append_delete_condition(params, event)
 
             return table.delete_item(**params)
         except SchemaValidationError as e:
             raise BadRequestError("Invalid request")
+        except dynamodb.exceptions.ConditionalCheckFailedException as e:
+            return Response(404, content_type="application/json", body="not found")
 
 
 class SearchAction(Action):

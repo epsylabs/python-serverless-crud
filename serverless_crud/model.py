@@ -26,8 +26,8 @@ class PrimaryKey:
     def __init__(self, **key_fields):
         self.key_fields = key_fields
         names = list(key_fields.keys())
-        self.range_key = names.pop()
-        self.hash_key = names.pop()
+        self.range_key = names[1] if len(names) > 1 else None
+        self.hash_key = names[0]
         self.partition_key = self.hash_key
         self.sort_key = self.range_key
 
@@ -98,6 +98,9 @@ class BaseModel(ParserBaseModel):
             if field in cls._meta.key.key_fields.keys():
                 continue
             schema["properties"].pop(field, None)
+
+            if field in schema["required"]:
+                schema["required"].remove(field)
 
         return schema
 

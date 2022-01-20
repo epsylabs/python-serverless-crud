@@ -1,5 +1,5 @@
 from aws_lambda_powertools.event_handler import ApiGatewayResolver, content_types
-from aws_lambda_powertools.event_handler.api_gateway import Router, Response
+from aws_lambda_powertools.event_handler.api_gateway import Router
 
 from serverless_crud.actions import *
 from serverless_crud.service import API as BaseAPI
@@ -60,19 +60,26 @@ class API(BaseAPI):
         def get(*args, **kwargs):
             primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
 
-            return get_callback(*args, primary_key=primary_key, event=router.current_event, context=router.lambda_context)
+            return get_callback(*args, primary_key=primary_key, event=router.current_event,
+                                context=router.lambda_context)
 
         @router.post(f"/{alias}")
         def create():
-            return create_callback(router.current_event, router.lambda_context)
+            response = create_callback(router.current_event, router.lambda_context)
+            if isinstance(response, Response):
+                return response
+
+            return response.get()
 
         @router.put(id_route_pattern)
-        def update():
+        def update(*args, **kwargs):
             return update_callback(router.current_event, router.lambda_context)
 
         @router.delete(id_route_pattern)
-        def delete():
-            return delete_callback(router.current_event, router.lambda_context)
+        def delete(*args, **kwargs):
+            primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
+            return delete_callback(*args, primary_key=primary_key, event=router.current_event,
+                                   context=router.lambda_context)
 
         @router.get(f"/{alias}")
         def search(*args, **kwargs):
