@@ -1,9 +1,9 @@
-from aws_lambda_powertools.event_handler.exceptions import BadRequestError
 from aws_lambda_powertools.metrics import SchemaValidationError
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 
 from serverless_crud.actions.base import Action
 from serverless_crud.dynamodb import with_dynamodb
+from serverless_crud.exceptions import EntityNotFoundException
 
 
 class GetAction(Action):
@@ -12,8 +12,12 @@ class GetAction(Action):
         try:
             self.validate(primary_key.raw(), self.model.key_schema())
 
-            item = self._fetch_item(table, primary_key)
+            params = dict(
+                Key=primary_key.raw(),
+            )
 
-            return item
+            respose = table.get_item(**params)
+
+            return respose, self.model(**respose.get("Item"))
         except SchemaValidationError as e:
-            raise BadRequestError("Invalid request")
+            raise EntityNotFoundException()

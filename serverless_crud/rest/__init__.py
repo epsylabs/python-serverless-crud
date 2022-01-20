@@ -2,6 +2,7 @@ from aws_lambda_powertools.event_handler import ApiGatewayResolver, content_type
 from aws_lambda_powertools.event_handler.api_gateway import Router, Response
 
 from serverless_crud.actions import *
+from serverless_crud.rest.http import JsonResponse
 from serverless_crud.service import API as BaseAPI
 
 
@@ -38,11 +39,11 @@ class API(BaseAPI):
         self.models.append(model)
         self._create_model_app(
             model, alias,
-            get_callback=get(model),
-            create_callback=create(model),
-            update_callback=update(model),
-            delete_callback=delete(model),
-            search_callback=search(model)
+            get_callback=get(model) if get else None,
+            create_callback=create(model) if create else None,
+            update_callback=update(model) if update else None,
+            delete_callback=delete(model) if delete else None,
+            search_callback=search(model) if search else None
         )
 
     def handle(self, event, context):
@@ -56,33 +57,48 @@ class API(BaseAPI):
         if len(model._meta.key.key_fields) > 1:
             id_route_pattern += f"/<{model._meta.key.sort_key}>"
 
-        @router.get(id_route_pattern)
-        def get(*args, **kwargs):
-            primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
+        if get_callback:
+            @router.get(id_route_pattern)
+            def get(*args, **kwargs):
+                primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
 
-            return get_callback(*args, primary_key=primary_key, event=router.current_event,
-                                context=router.lambda_context)
+                return get_callback(*args, primary_key=primary_key, event=router.current_event,
+                                    context=router.lambda_context)
 
-        @router.post(f"/{alias}")
-        def create():
-            response = create_callback(router.current_event, router.lambda_context)
-            if isinstance(response, Response):
-                return response
+        if create_callback:
+            @router.post(f"/{alias}")
+            def create():
+                response, obj = create_callback(router.current_event, router.lambda_context)
+                if isinstance(obj, Response):
+                    return obj
 
-            return response.get()
+                return JsonResponse(201, obj.dict())
 
-        @router.put(id_route_pattern)
-        def update(*args, **kwargs):
-            return update_callback(router.current_event, router.lambda_context)
+        if update_callback:
+            @router.put(id_route_pattern)
+            def update(*args, **kwargs):
+                response, obj = update_callback(router.current_event, router.lambda_context)
 
-        @router.delete(id_route_pattern)
-        def delete(*args, **kwargs):
-            primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
-            return delete_callback(*args, primary_key=primary_key, event=router.current_event,
-                                   context=router.lambda_context)
+                if isinstance(obj, Response):
+                    return obj
 
-        @router.get(f"/{alias}")
-        def search(*args, **kwargs):
-            return search_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
+                return JsonResponse(201, obj.dict())
+
+        if delete_callback:
+            @router.delete(id_route_pattern)
+            def delete(*args, **kwargs):
+                primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
+                response, obj = delete_callback(*args, primary_key=primary_key, event=router.current_event,
+                                       context=router.lambda_context)
+
+                if isinstance(obj, Response):
+                    return obj
+
+                return JsonResponse(200, {})
+
+        if search_callback:
+            @router.get(f"/{alias}")
+            def search(*args, **kwargs):
+                return search_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
 
         self.app.include_router(router)

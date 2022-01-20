@@ -1,4 +1,4 @@
-from serverless_crud.dynamodb import model_to_table_specification
+from serverless_crud.dynamodb.builder import model_to_table_specification
 from serverless_crud.graphql import API as GraphQLApi
 from serverless_crud.rest import API as RestApi
 

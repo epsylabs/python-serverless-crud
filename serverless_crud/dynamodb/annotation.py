@@ -79,3 +79,18 @@ class DynamodbMetadata:
         for idx in self.indexes:
             if idx.name == name:
                 return idx
+
+
+def Model(key, indexes=None, table_name=None, owner_field=None):
+    def wrapper(original_class):
+        orig_init = original_class.__init__
+        name = table_name or original_class.__name__
+        original_class._meta = DynamodbMetadata(key, indexes, name, owner_field)
+
+        def __init__(self, *args, **kws):
+            orig_init(self, *args, **kws)
+
+        original_class.__init__ = __init__
+        return original_class
+
+    return wrapper

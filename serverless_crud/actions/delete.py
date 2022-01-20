@@ -1,10 +1,9 @@
-from aws_lambda_powertools.event_handler.api_gateway import Response
-from aws_lambda_powertools.event_handler.exceptions import BadRequestError
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.validation import SchemaValidationError
 
 from serverless_crud.actions.base import Action
 from serverless_crud.dynamodb import with_dynamodb
+from serverless_crud.exceptions import ValidationException, EntityNotFoundException
 from serverless_crud.utils import identity
 
 
@@ -26,8 +25,8 @@ class DeleteAction(Action):
 
             self.append_delete_condition(params, event)
 
-            return table.delete_item(**params)
+            return table.delete_item(**params), None
         except SchemaValidationError as e:
-            raise BadRequestError("Invalid request")
+            raise ValidationException(e)
         except dynamodb.exceptions.ConditionalCheckFailedException as e:
-            return Response(404, content_type="application/json", body="not found")
+            raise EntityNotFoundException()

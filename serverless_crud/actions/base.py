@@ -24,16 +24,6 @@ class Action(abc.ABC):
     def handle(self, *args, **kwargs):
         pass
 
-    def _fetch_item(self, table, primary_key, fields=None):
-        params = dict(
-            Key=primary_key.raw(),
-        )
-
-        if fields:
-            params["AttributesToGet"] = fields
-
-        return table.get_item(**params).get("Item")
-
     def _set_owner(self, event: APIGatewayProxyEvent, payload: dict):
         if not self.model._meta.owner_field:
             return payload

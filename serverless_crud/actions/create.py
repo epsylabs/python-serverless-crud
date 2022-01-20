@@ -1,8 +1,8 @@
-from aws_lambda_powertools.event_handler.api_gateway import Response
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 
 from serverless_crud.actions.base import Action
 from serverless_crud.dynamodb import with_dynamodb
+from serverless_crud.exceptions import DuplicatedEntityException
 from serverless_crud.model import BaseModel
 
 
@@ -20,4 +20,4 @@ class CreateAction(Action):
 
             return result, obj
         except dynamodb.exceptions.ConditionalCheckFailedException as e:
-            return Response(409, content_type="application/json", body="duplicated")
+            raise DuplicatedEntityException()
