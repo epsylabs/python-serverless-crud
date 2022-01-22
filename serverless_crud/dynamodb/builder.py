@@ -62,7 +62,7 @@ def model_to_table_specification(model: BaseModel):
         ],
         KeySchema=[KeySchema(AttributeName=name, KeyType=str(type_)) for name, type_ in meta.key.key_fields.items()],
         GlobalSecondaryIndexes=[AWSGlobalSecondaryIndex(**create_index(index)) for index in meta.indexes if
-                                type(index) == GlobalSecondaryIndex],
+                                isinstance(index, GlobalSecondaryIndex)],
         LocalSecondaryIndexes=[AWSLocalSecondaryIndex(**create_index(index)) for index in meta.indexes if
-                               type(index) == LocalSecondaryIndex],
+                               isinstance(index, LocalSecondaryIndex)],
     )
