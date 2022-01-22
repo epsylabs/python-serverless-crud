@@ -2,11 +2,11 @@
   "typeName": "Query",
   "fieldName": "getDevice",
   "arguments": {
-    "id": "asdfasfd"
+    "id": "242942344"
   },
   "identity": {
     "claims": {
-      "sub": "0b44ac7a-c793-4e4d-9b2d-0634be07598f",
+      "sub": "5b9b13f1-dd60-43e4-a986-ea2a0e2ee90a",
       "email_verified": true,
       "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_nhBsciuAR",
       "cognito:username": "michal",

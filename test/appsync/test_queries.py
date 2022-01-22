@@ -6,6 +6,6 @@ def test_direct_resolver(app):
     # load_event primarily deserialize the JSON event into a dict
     mock_event = load_event("appsync/getDevice.json")
 
-    result = app.appsync.handle(mock_event, {})
+    result, obj = app.appsync.handle(mock_event, {})
 
-    assert result == "my identifier"
+    assert obj.id == '242942344'
