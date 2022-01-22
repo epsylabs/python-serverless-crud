@@ -50,6 +50,31 @@ class BaseAPI(abc.ABC):
             dynamodb_names.append(f"table/{model._meta.table_name}/index/*")
             resources.append(dynamodb.Table(model._meta.table_name, **model_to_table_specification(model)))
 
+        if not self.models:
+            return resources
+
+        policy_statements = []
+
+        if dynamodb_names:
+            policy_statements.append({
+                "Sid": "SpecificTable",
+                "Effect": "Allow",
+                "Action": [
+                    "dynamodb:BatchGet*",
+                    "dynamodb:Get*",
+                    "dynamodb:Query",
+                    "dynamodb:Scan",
+                    "dynamodb:BatchWrite*",
+                    "dynamodb:Delete*",
+                    "dynamodb:Update*",
+                    "dynamodb:PutItem"
+                ],
+                "Resource": [
+                    Sub(f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:{name}") for name in dynamodb_names
+                ]
+            })
+
+
         role = iam.Role(
             f"{type(self).__name__}ExecutionRole",
             AssumeRolePolicyDocument={
@@ -70,30 +95,11 @@ class BaseAPI(abc.ABC):
                     PolicyName="Policy",
                     PolicyDocument={
                         "Version": "2012-10-17",
-                        "Statement": [
-                            {
-                                "Sid": "SpecificTable",
-                                "Effect": "Allow",
-                                "Action": [
-                                    "dynamodb:BatchGet*",
-                                    "dynamodb:Get*",
-                                    "dynamodb:Query",
-                                    "dynamodb:Scan",
-                                    "dynamodb:BatchWrite*",
-                                    "dynamodb:Delete*",
-                                    "dynamodb:Update*",
-                                    "dynamodb:PutItem"
-                                ],
-                                "Resource": [
-                                    { "Fn::Sub": f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:{name}" for name in
-                                    dynamodb_names }
-                                ]
-                            }
-                        ]
+                        "Statement": policy_statements
                     }
                 )
             ],
-            RoleName=Sub(f"{self.manager.service_name.spinal}-${{AWS::Region}}-{self.name.lower}-role")
+            RoleName=Sub(f"{self.manager.service_name.spinal}-${{AWS::Region}}-${{self:custom.stage}}-{self.name.lower}-role")
         )
 
         resources.append(role)
