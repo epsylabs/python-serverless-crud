@@ -23,6 +23,21 @@ class Manager:
 
         return resources
 
+    def functions(self, service, **kwargs):
+        functions = []
+
+        if self.rest.models:
+            service.builder.function.http("rest", "REST API", "/rest/{proxy+}", HTTPFunction.ANY,
+                                          handler=f"{service.service.underscore}.handlers.rest_handler", **kwargs)
+
+        if self.graphql.models:
+            service.builder.function.http("rest", "GraphQL API", "/rest/{proxy+}", HTTPFunction.ANY,
+                                          handler=f"{service.service.underscore}.handlers.rest_handler", **kwargs)
+
+        if self.appsync.models:
+            service.builder.function.generic("appsync", "AppSync resolver app",
+                                             handler=f"{service.service.underscore}.appsync_handler", **kwargs)
+
     def configure(self, service_name=None, stage=None):
         if service_name:
             self.service_name = Identifier(service_name)
