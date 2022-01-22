@@ -28,7 +28,7 @@ def create_index(index: DynamoIndex):
         )
     )
 
-    if type(index) == GlobalSecondaryIndex and index.throughput:
+    if isinstance(index, GlobalSecondaryIndex) and index.throughput:
         throughput = {}
         if index.throughput.read:
             throughput["ReadCapacityUnits"] = index.throughput.read
