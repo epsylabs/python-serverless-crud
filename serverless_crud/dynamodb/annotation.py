@@ -62,7 +62,7 @@ class ProvisionedThroughput:
         self.write = write
 
 
-class GlobalSecondaryIndex(LocalSecondaryIndex):
+class GlobalSecondaryIndex(DynamoIndex):
     def __init__(self, name, projection=Projection.KEYS_ONLY, non_key_attributes=None, throughput=None, **fields):
         super().__init__(name, projection, non_key_attributes, **fields)
         self.throughput = throughput
