@@ -41,7 +41,7 @@ class BaseAPI(abc.ABC):
         pass
 
     def resources(self):
-        from troposphere import dynamodb, iam
+        from troposphere import dynamodb, iam, Sub
 
         resources = []
         dynamodb_names = []
@@ -93,7 +93,7 @@ class BaseAPI(abc.ABC):
                     }
                 )
             ],
-            RoleName=f"{self.manager.service_name.spinal}-{self.name.lower}-role"
+            RoleName=Sub(f"{self.manager.service_name.spinal}-${{AWS::Region}}-{self.name.lower}-role")
         )
 
         resources.append(role)
