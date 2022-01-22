@@ -7,8 +7,7 @@ def identity(event):
         if isinstance(event, APIGatewayProxyEvent):
             owner = event.request_context.authorizer.claims["sub"]
         elif isinstance(event, AppSyncResolverEvent):
-            print(type(event.identity))
-            owner = event.identity.get("claims")
+            owner = event.identity.get("claims")["sub"]
     except (KeyError, AttributeError):
         pass
 
