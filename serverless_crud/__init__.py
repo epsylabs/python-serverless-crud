@@ -1,4 +1,3 @@
-from serverless_crud.dynamodb.builder import model_to_table_specification
 from serverless_crud.appsync import API as AppSyncApi
 from serverless_crud.graphql import API as GraphQLApi
 from serverless_crud.rest import API as RestApi
@@ -10,15 +9,13 @@ class Manager:
         self.graphql = GraphQLApi()
         self.appsync = AppSyncApi()
 
-    def dynamodb_table_specifications(self):
-        tables = {}
-        for model in self.rest.models:
-            tables[model._meta.table_name] = model_to_table_specification(model)
+    def resources(self):
+        resources = []
+        resources += self.rest.resources()
+        resources += self.graphql.resources()
+        resources += self.appsync.resources()
 
-        # for model in self.graphql.models:
-        #     pass
-
-        return tables
+        return resources
 
 
 api = Manager()

@@ -1,10 +1,6 @@
 from aws_lambda_powertools.event_handler import AppSyncResolver
 from aws_lambda_powertools.event_handler.appsync import Router
 
-from serverless_crud.actions import *
-from serverless_crud.actions.search import ListAction, ScanAction, QueryAction
-from serverless_crud.exceptions import APIException
-from serverless_crud.rest.http import JsonResponse
 from serverless_crud.service import API as BaseAPI
 
 
@@ -22,23 +18,7 @@ class PrimaryKey:
 class API(BaseAPI):
     def __init__(self) -> None:
         super().__init__()
-        self.models = []
         self.app = AppSyncResolver()
-
-    def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
-                 lookup_list=ListAction, lookup_scan=ScanAction, lookup_query=QueryAction):
-        self.models.append(model)
-        alias = model.__name__
-        self._create_model_app(
-            model, alias,
-            get_callback=get(model) if get else None,
-            create_callback=create(model) if create else None,
-            update_callback=update(model) if update else None,
-            delete_callback=delete(model) if delete else None,
-            lookup_list_callback=lookup_list(model) if lookup_list else None,
-            lookup_scan_callback=lookup_scan(model) if lookup_scan else None,
-            lookup_query_callback=lookup_query(model) if lookup_query else None,
-        )
 
     def handle(self, event, context):
         return self.app.resolve(event, context)
@@ -97,7 +77,7 @@ class API(BaseAPI):
         #         return JsonResponse(200, [obj.dict() for obj in objs])
         #
         #     router.resolver(type_name="Query", field_name=f"list{alias}s")(lookup_list)
-            # router.get(f"/lookup/{alias}/list")(lookup_list)
+        # router.get(f"/lookup/{alias}/list")(lookup_list)
 
         # if lookup_scan_callback:
         #     def lookup_scan(*args, **kwargs):
