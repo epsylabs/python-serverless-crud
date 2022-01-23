@@ -118,3 +118,11 @@ class RestAPI(BaseAPI):
             router.post(f"/lookup/{alias}/query")(lookup_query)
 
         self.app.include_router(router)
+
+    def function(self, service, handler=None, **kwargs):
+        if not self.models:
+            return
+
+        handler = handler or f"{service.service.snake}.handlers.rest_handler"
+
+        return service.builder.function.http("rest", "REST API", "/rest/{proxy+}", "ANY", handler=handler, **kwargs)

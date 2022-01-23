@@ -20,9 +20,16 @@ class AppSyncAPI(BaseAPI):
         super().__init__(manager)
         self.app = AppSyncResolver()
 
-
     def handle(self, event, context):
         return self.app.resolve(event, context)
+
+    def function(self, service, handler=None, **kwargs):
+        if not self.models:
+            return
+
+        handler = handler or f"{service.service.snake}.handlers.appsync_handler"
+
+        return service.builder.function.generic("appsync", "AppSync API resolver", handler=handler, **kwargs)
 
     def _create_model_app(self, model, alias, get_callback, create_callback, update_callback, delete_callback,
                           lookup_list_callback, lookup_scan_callback, lookup_query_callback):

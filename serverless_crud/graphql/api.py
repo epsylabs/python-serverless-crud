@@ -1,11 +1,10 @@
 import os
+from io import StringIO
+from typing import List
 
 import graphene
 import inflect
 from graphene_pydantic import PydanticObjectType
-from typing import List
-
-from io import StringIO
 
 from serverless_crud.api import BaseAPI
 from serverless_crud.model import BaseModel
@@ -25,6 +24,14 @@ class GraphQLAPI(BaseAPI):
     def _create_model_app(self, model, alias, get_callback, create_callback, update_callback, delete_callback,
                           lookup_list_callback, lookup_scan_callback, lookup_query_callback):
         pass
+
+    def function(self, service, handler=None, **kwargs):
+        if not self.models:
+            return
+
+        handler = f"{service.service.snake}.handlers.graphql_handler"
+
+        return service.builder.function.http("graphql", "GraphQL API", "/graphql", "ANY", handler=handler, **kwargs)
 
     def render(self, output=None):
         converted = self._convert_models(self.models)

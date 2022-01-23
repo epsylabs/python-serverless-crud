@@ -2,19 +2,44 @@ import abc
 
 from serverless_crud.actions import *
 from serverless_crud.actions.search import ListAction, ScanAction, QueryAction
+from serverless_crud.aws.iam import PolicyBuilder
 from serverless_crud.dynamodb.builder import model_to_table_specification
 from serverless_crud.utils import Identifier
+
+try:
+    from troposphere import Sub
+except ImportError:
+    class Sub:
+        def __init__(self, name):
+            self.name = name
+
+        def __str__(self):
+            return self.name
 
 
 class BaseAPI(abc.ABC):
     def __init__(self, manager):
         self.models = []
         self.manager = manager
+        self.policy_statements = PolicyBuilder(statements=[{
+            "Sid": "DynamodbTables",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:BatchGet*",
+                "dynamodb:Get*",
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:BatchWrite*",
+                "dynamodb:Delete*",
+                "dynamodb:Update*",
+                "dynamodb:PutItem"
+            ],
+            "Resource": []
+        }])
 
     @abc.abstractmethod
     def handle(self, event, context):
         pass
-
 
     @property
     def name(self):
@@ -23,6 +48,12 @@ class BaseAPI(abc.ABC):
     def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
                  lookup_list=ListAction, lookup_scan=ScanAction, lookup_query=QueryAction):
         self.models.append(model)
+        self.policy_statements.get_statement("DynamodbTables").get("Resource").append(
+            Sub(f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:table/{model._meta.table_name}")
+        )
+        self.policy_statements.get_statement("DynamodbTables").get("Resource").append(
+            Sub(f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:table/{model._meta.table_name}/index/*")
+        )
         alias = alias or model.__name__
         self._create_model_app(
             model, alias,
@@ -41,39 +72,15 @@ class BaseAPI(abc.ABC):
         pass
 
     def resources(self):
-        from troposphere import dynamodb, iam, Sub
+        from troposphere import dynamodb, iam
 
         resources = []
-        dynamodb_names = []
         for model in self.models:
-            dynamodb_names.append(f"table/{model._meta.table_name}")
-            dynamodb_names.append(f"table/{model._meta.table_name}/index/*")
             resources.append(dynamodb.Table(model._meta.table_name, **model_to_table_specification(model)))
 
-        if not self.models:
+        statements = self.policy_statements.all()
+        if not statements:
             return resources
-
-        policy_statements = []
-
-        if dynamodb_names:
-            policy_statements.append({
-                "Sid": "SpecificTable",
-                "Effect": "Allow",
-                "Action": [
-                    "dynamodb:BatchGet*",
-                    "dynamodb:Get*",
-                    "dynamodb:Query",
-                    "dynamodb:Scan",
-                    "dynamodb:BatchWrite*",
-                    "dynamodb:Delete*",
-                    "dynamodb:Update*",
-                    "dynamodb:PutItem"
-                ],
-                "Resource": [
-                    Sub(f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:{name}") for name in dynamodb_names
-                ]
-            })
-
 
         role = iam.Role(
             f"{type(self).__name__}ExecutionRole",
@@ -95,16 +102,23 @@ class BaseAPI(abc.ABC):
                     PolicyName="Policy",
                     PolicyDocument={
                         "Version": "2012-10-17",
-                        "Statement": policy_statements
+                        "Statement": statements
                     }
                 )
             ],
-            RoleName=Sub(f"{self.manager.service_name.spinal}-${{AWS::Region}}-${{self:custom.stage}}-{self.name.lower}-role")
+            RoleName=self.iam_execution_role_name()
         )
 
         resources.append(role)
 
         return resources
+
+    @abc.abstractmethod
+    def function(self, service, handler=None, **kwargs):
+        pass
+
+    def iam_execution_role_name(self):
+        return Sub(f"{self.manager.service_name.spinal}-${{AWS::Region}}-${{self:custom.stage}}-{self.name.lower}-role")
 
     def __call__(self, event, context, *args, **kwargs):
         return self.handle(event, context)
