@@ -8,4 +8,4 @@ def test_direct_resolver(app):
 
     result, obj = app.appsync.handle(mock_event, {})
 
-    assert obj.id == '242942344'
+    assert obj.id == "242942344"

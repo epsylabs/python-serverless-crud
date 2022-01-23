@@ -27,21 +27,38 @@ class AppSyncAPI(BaseAPI):
         if not self.models:
             return
 
+        if self._function:
+            return self._function
+
         handler = handler or f"{service.service.snake}.handlers.appsync_handler"
 
-        return service.builder.function.generic("appsync", "AppSync API resolver", handler=handler, **kwargs)
+        self._function = service.builder.function.generic("appsync", "AppSync API resolver", handler=handler, **kwargs)
 
-    def _create_model_app(self, model, alias, get_callback, create_callback, update_callback, delete_callback,
-                          lookup_list_callback, lookup_scan_callback, lookup_query_callback):
+        return self._function
+
+    def _create_model_app(
+        self,
+        model,
+        alias,
+        get_callback,
+        create_callback,
+        update_callback,
+        delete_callback,
+        lookup_list_callback,
+        lookup_scan_callback,
+        lookup_query_callback,
+    ):
         router = Router()
 
         if get_callback:
+
             @router.resolver(type_name="Query", field_name=f"get{alias}")
             def get(*args, **kwargs):
                 primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
 
-                return get_callback(*args, primary_key=primary_key, event=router.current_event,
-                                    context=router.lambda_context)
+                return get_callback(
+                    *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
+                )
 
         # if create_callback:
         #     @router.resolver(type_name="Mutation", field_name=f"create{alias}")

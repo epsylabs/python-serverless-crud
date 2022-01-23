@@ -14,11 +14,11 @@ def with_dynamodb(f):
     def wrapper(self, *args, **kwds):
         sig = inspect.signature(f)
 
-        if 'dynamodb' in sig.parameters:
-            kwds['dynamodb'] = dynamodb
+        if "dynamodb" in sig.parameters:
+            kwds["dynamodb"] = dynamodb
 
-        if 'table' in sig.parameters:
-            kwds['table'] = boto3.resource("dynamodb").Table(self.model._meta.table_name)
+        if "table" in sig.parameters:
+            kwds["table"] = boto3.resource("dynamodb").Table(self.model._meta.table_name)
 
         return f(self, *args, **kwds)
 

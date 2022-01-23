@@ -13,4 +13,6 @@ class PolicyBuilder:
         self.statements[statement.get("Sid")] = statement
 
     def all(self):
-        return [statement for statement in self.statements.values() if statement.get("Action") and statement.get("Resource")]
+        return [
+            statement for statement in self.statements.values() if statement.get("Action") and statement.get("Resource")
+        ]

@@ -12,8 +12,11 @@ class APIException(Exception):
         self.json_body = json_body
 
     def as_response(self):
-        return Response(self.http_code, content_type="application/json",
-                        body=json.dumps(self.json_body if self.json_body else {"message": self.msg}))
+        return Response(
+            self.http_code,
+            content_type="application/json",
+            body=json.dumps(self.json_body if self.json_body else {"message": self.msg}),
+        )
 
 
 class InvalidPayloadException(APIException, BadRequestError):

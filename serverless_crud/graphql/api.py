@@ -21,17 +21,34 @@ class GraphQLAPI(BaseAPI):
     def registry(self, model, **kwargs):
         self.models.append(model)
 
-    def _create_model_app(self, model, alias, get_callback, create_callback, update_callback, delete_callback,
-                          lookup_list_callback, lookup_scan_callback, lookup_query_callback):
+    def _create_model_app(
+        self,
+        model,
+        alias,
+        get_callback,
+        create_callback,
+        update_callback,
+        delete_callback,
+        lookup_list_callback,
+        lookup_scan_callback,
+        lookup_query_callback,
+    ):
         pass
 
     def function(self, service, handler=None, **kwargs):
         if not self.models:
             return
 
+        if self._function:
+            return self._function
+
         handler = f"{service.service.snake}.handlers.graphql_handler"
 
-        return service.builder.function.http("graphql", "GraphQL API", "/graphql", "ANY", handler=handler, **kwargs)
+        self._function = service.builder.function.http(
+            "graphql", "GraphQL API", "/graphql", "ANY", handler=handler, **kwargs
+        )
+
+        return self._function
 
     def render(self, output=None):
         converted = self._convert_models(self.models)
@@ -54,6 +71,10 @@ class GraphQLAPI(BaseAPI):
 type Query {
   get<<MODEL>>: <<MODEL>> @function(name: "FUNCTION-NAME")
   list<<MODEL_PLURAL>>: @function(name: "FUNCTION-NAME")
-}""".replace("<<MODEL>>", model.__name__).replace("<<MODEL_PLURAL>>", self.inflect_engine.plural(model.__name__))
+}""".replace(
+                    "<<MODEL>>", model.__name__
+                ).replace(
+                    "<<MODEL_PLURAL>>", self.inflect_engine.plural(model.__name__)
+                )
             )
         return converted

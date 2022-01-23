@@ -9,6 +9,7 @@ from serverless_crud.utils import Identifier
 try:
     from troposphere import Sub
 except ImportError:
+
     class Sub:
         def __init__(self, name):
             self.name = name
@@ -21,21 +22,27 @@ class BaseAPI(abc.ABC):
     def __init__(self, manager):
         self.models = []
         self.manager = manager
-        self.policy_statements = PolicyBuilder(statements=[{
-            "Sid": "DynamodbTables",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:BatchGet*",
-                "dynamodb:Get*",
-                "dynamodb:Query",
-                "dynamodb:Scan",
-                "dynamodb:BatchWrite*",
-                "dynamodb:Delete*",
-                "dynamodb:Update*",
-                "dynamodb:PutItem"
-            ],
-            "Resource": []
-        }])
+        self.policy_statements = PolicyBuilder(
+            statements=[
+                {
+                    "Sid": "DynamodbTables",
+                    "Effect": "Allow",
+                    "Action": [
+                        "dynamodb:BatchGet*",
+                        "dynamodb:Get*",
+                        "dynamodb:Query",
+                        "dynamodb:Scan",
+                        "dynamodb:BatchWrite*",
+                        "dynamodb:Delete*",
+                        "dynamodb:Update*",
+                        "dynamodb:PutItem",
+                    ],
+                    "Resource": [],
+                }
+            ]
+        )
+
+        self._function = None
 
     @abc.abstractmethod
     def handle(self, event, context):
@@ -45,8 +52,18 @@ class BaseAPI(abc.ABC):
     def name(self):
         return Identifier(type(self).__name__)
 
-    def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
-                 lookup_list=ListAction, lookup_scan=ScanAction, lookup_query=QueryAction):
+    def registry(
+        self,
+        model,
+        alias=None,
+        get=GetAction,
+        create=CreateAction,
+        update=UpdateAction,
+        delete=DeleteAction,
+        lookup_list=ListAction,
+        lookup_scan=ScanAction,
+        lookup_query=QueryAction,
+    ):
         self.models.append(model)
         self.policy_statements.get_statement("DynamodbTables").get("Resource").append(
             Sub(f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:table/{model._meta.table_name}")
@@ -56,7 +73,8 @@ class BaseAPI(abc.ABC):
         )
         alias = alias or model.__name__
         self._create_model_app(
-            model, alias,
+            model,
+            alias,
             get_callback=get(model) if get else None,
             create_callback=create(model) if create else None,
             update_callback=update(model) if update else None,
@@ -67,8 +85,18 @@ class BaseAPI(abc.ABC):
         )
 
     @abc.abstractmethod
-    def _create_model_app(self, model, alias, get_callback, create_callback, update_callback, delete_callback,
-                          lookup_list_callback, lookup_scan_callback, lookup_query_callback):
+    def _create_model_app(
+        self,
+        model,
+        alias,
+        get_callback,
+        create_callback,
+        update_callback,
+        delete_callback,
+        lookup_list_callback,
+        lookup_scan_callback,
+        lookup_query_callback,
+    ):
         pass
 
     def resources(self):
@@ -87,26 +115,15 @@ class BaseAPI(abc.ABC):
             AssumeRolePolicyDocument={
                 "Version": "2012-10-17",
                 "Statement": [
-                    {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": "lambda.amazonaws.com"
-                        },
-                        "Action": "sts:AssumeRole"
-                    }
-                ]
+                    {"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}
+                ],
             },
             Policies=[
                 iam.Policy(
-                    "Policy",
-                    PolicyName="Policy",
-                    PolicyDocument={
-                        "Version": "2012-10-17",
-                        "Statement": statements
-                    }
+                    "Policy", PolicyName="Policy", PolicyDocument={"Version": "2012-10-17", "Statement": statements}
                 )
             ],
-            RoleName=self.iam_execution_role_name()
+            RoleName=self.iam_execution_role_name(),
         )
 
         resources.append(role)

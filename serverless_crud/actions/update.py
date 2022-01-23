@@ -12,7 +12,10 @@ class UpdateAction(Action):
         payload = self._set_owner(event, event.json_body)
 
         obj: BaseModel = self._unpack(payload)
-        query = dict(Item=obj.dict(), ReturnValues='NONE', )
+        query = dict(
+            Item=obj.dict(),
+            ReturnValues="NONE",
+        )
         obj._meta.key.append_condition_expression(query, "attribute_exists")
 
         try:

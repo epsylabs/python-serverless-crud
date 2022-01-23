@@ -24,11 +24,9 @@ class Manager:
         return resources
 
     def functions(self, service, **kwargs):
-        return list(filter(None, [
-            self.rest.function(service),
-            self.graphql.function(service),
-            self.appsync.function(service)
-        ]))
+        return list(
+            filter(None, [self.rest.function(service), self.graphql.function(service), self.appsync.function(service)])
+        )
 
     def configure(self, service_name=None, stage=None):
         if service_name:

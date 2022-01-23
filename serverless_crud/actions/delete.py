@@ -21,7 +21,9 @@ class DeleteAction(Action):
         try:
             self.validate(primary_key.raw(), self.model.key_schema())
 
-            params = dict(Key=primary_key.raw(), )
+            params = dict(
+                Key=primary_key.raw(),
+            )
 
             self.append_delete_condition(params, event)
 

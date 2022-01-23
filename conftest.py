@@ -9,10 +9,8 @@ from serverless_crud.model import BaseModel
 def app():
     @db.Model(
         key=db.PrimaryKey(id=db.KeyFieldTypes.HASH),
-        indexes=(
-                db.GlobalSecondaryIndex("by_user", user=db.KeyFieldTypes.HASH, created=db.KeyFieldTypes.RANGE),
-        ),
-        owner_field="user"
+        indexes=(db.GlobalSecondaryIndex("by_user", user=db.KeyFieldTypes.HASH, created=db.KeyFieldTypes.RANGE),),
+        owner_field="user",
     )
     class Device(BaseModel):
         id: str

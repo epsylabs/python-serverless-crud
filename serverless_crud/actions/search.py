@@ -76,19 +76,14 @@ class ScanAction(SearchAction):
     def _fetch_items(self, event, dynamodb, table, index, _next=None):
         payload = ScanPayload(**event.json_body)
 
-        query = {
-            **dict(
-                Limit=100
-            ),
-            **self._get_query_target(table, index)
-        }
+        query = {**dict(Limit=100), **self._get_query_target(table, index)}
 
         if payload.expression:
             query.update(
                 dict(
                     FilterExpression=payload.expression,
                     ExpressionAttributeNames=self._extract_fields(str(payload.expression)),
-                    ExpressionAttributeValues=payload.values
+                    ExpressionAttributeValues=payload.values,
                 )
             )
 
@@ -107,15 +102,13 @@ class QueryAction(SearchAction):
         expression = str(payload.filter_expression) + " " + str(payload.key_expression)
 
         query = {
-            **dict(
-                Limit=100
-            ),
+            **dict(Limit=100),
             **dict(
                 KeyConditionExpression=payload.key_expression,
                 ExpressionAttributeNames=self._extract_fields(expression),
-                ExpressionAttributeValues=payload.values
+                ExpressionAttributeValues=payload.values,
             ),
-            **self._get_query_target(table, index)
+            **self._get_query_target(table, index),
         }
 
         if payload.filter_expression:
@@ -133,21 +126,18 @@ class ListAction(SearchAction):
     def validate(self, index, **kwargs):
         owner_field = self.model._meta.owner_field
 
-        if not owner_field and \
-                ((index and index.fields.get(owner_field) == KeyFieldTypes.HASH)
-                 or self.model._meta.key.partition_key == owner_field):
+        if not owner_field and (
+            (index and index.fields.get(owner_field) == KeyFieldTypes.HASH)
+            or self.model._meta.key.partition_key == owner_field
+        ):
             raise InvalidPayloadException(
-                "You can only use list method only on tables or indexes with record owner for partition key")
+                "You can only use list method only on tables or indexes with record owner for partition key"
+            )
 
     def _fetch_items(self, event, dynamodb, table, index, _next=None):
         self.validate(index)
 
-        query = {
-            **dict(
-                Limit=100
-            ),
-            **self._get_query_target(table, index)
-        }
+        query = {**dict(Limit=100), **self._get_query_target(table, index)}
 
         self._add_owner_condition(query, event)
 
