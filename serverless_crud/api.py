@@ -125,6 +125,7 @@ class BaseAPI(abc.ABC):
                     {"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}
                 ],
             },
+            ManagedPolicyArns=["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"],
             Policies=[
                 iam.Policy(
                     "Policy", PolicyName="Policy", PolicyDocument={"Version": "2012-10-17", "Statement": statements}

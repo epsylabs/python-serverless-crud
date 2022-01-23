@@ -1,8 +1,8 @@
 from test.utils import load_event
 
 
-def test_direct_resolver(app):
-    mock_event = load_event("appsync/getDevice.json")
+def test_creator(app):
+    mock_event = load_event("appsync/createDevice.json")
 
     result, obj = app.appsync.handle(mock_event, {})
 
