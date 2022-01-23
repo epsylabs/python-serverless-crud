@@ -152,7 +152,13 @@ class RestAPI(BaseAPI):
         handler = handler or f"{service.service.snake}.handlers.rest_handler"
 
         self._function = service.builder.function.http(
-            "rest", "REST API", "/rest/{proxy+}", "ANY", handler=handler, role=self.iam_execution_role_name(), **kwargs
+            "rest",
+            "REST API",
+            "/rest/{proxy+}",
+            "ANY",
+            handler=handler,
+            role=f"arn:aws:iam::${{AWS::AccountId}}:role/{self.iam_execution_role_name()}",
+            **kwargs,
         )
 
         return self._function

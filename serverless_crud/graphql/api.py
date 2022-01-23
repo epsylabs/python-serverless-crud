@@ -45,7 +45,13 @@ class GraphQLAPI(BaseAPI):
         handler = f"{service.service.snake}.handlers.graphql_handler"
 
         self._function = service.builder.function.http(
-            "graphql", "GraphQL API", "/graphql", "ANY", handler=handler, role=self.iam_execution_role_name(), **kwargs
+            "graphql",
+            "GraphQL API",
+            "/graphql",
+            "ANY",
+            handler=handler,
+            role=f"arn:aws:iam::${{AWS::AccountId}}:role/{self.iam_execution_role_name()}",
+            **kwargs,
         )
 
         return self._function
