@@ -50,7 +50,7 @@ class GraphQLAPI(BaseAPI):
             "/graphql",
             "ANY",
             handler=handler,
-            role=f"arn:aws:iam::${{AWS::AccountId}}:role/{self.iam_execution_role_name()}",
+            role=f"arn:aws:iam::${{aws:accountId}}:role/{self.iam_execution_role_name()}",
             **kwargs,
         )
 
