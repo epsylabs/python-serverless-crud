@@ -130,7 +130,7 @@ class BaseAPI(abc.ABC):
                     "Policy", PolicyName="Policy", PolicyDocument={"Version": "2012-10-17", "Statement": statements}
                 )
             ],
-            RoleName=self.iam_execution_role_name(),
+            RoleName=Sub(self.iam_execution_role_name()),
         )
 
         resources.append(role)
@@ -142,7 +142,7 @@ class BaseAPI(abc.ABC):
         pass
 
     def iam_execution_role_name(self):
-        return Sub(f"{self.manager.service_name.spinal}-${{AWS::Region}}-${{self:custom.stage}}-{self.name.lower}-role")
+        return f"{self.manager.service_name.spinal}-${{AWS::Region}}-${{self:custom.stage}}-{self.name.lower}-role"
 
     def __call__(self, event, context, *args, **kwargs):
         return self.handle(event, context)
