@@ -126,10 +126,10 @@ class ListAction(SearchAction):
     def validate(self, index, **kwargs):
         owner_field = self.model._meta.owner_field
 
-        if not owner_field and (
-            (index and index.fields.get(owner_field) == KeyFieldTypes.HASH)
-            or self.model._meta.key.partition_key == owner_field
-        ):
+        is_owner_field_pk = self.model._meta.key.partition_key == owner_field
+        is_owner_part_of_index = index and index.fields.get(owner_field) == KeyFieldTypes.HASH
+
+        if not (is_owner_field_pk or is_owner_part_of_index):
             raise InvalidPayloadException(
                 "You can only use list method only on tables or indexes with record owner for partition key"
             )

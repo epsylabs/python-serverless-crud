@@ -110,6 +110,9 @@ class AppSyncAPI(BaseAPI):
             @router.resolver(type_name="Query", field_name=f"list{alias}s")
             @response_handler
             def lookup_list(index=None, *args, **kwargs):
+                if not index:
+                    index = next(iter([idx.name for idx in model._meta.indexes if idx.partition_key == model._meta.owner_field]))
+
                 return lookup_list_callback(
                     index_name=index, event=router.current_event, context=router.lambda_context, *args, **kwargs
                 )

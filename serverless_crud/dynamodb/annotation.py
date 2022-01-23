@@ -49,6 +49,12 @@ class DynamoIndex:
         self.fields = fields
         self.projection = projection
         self.non_key_attributes = non_key_attributes or []
+        for field, field_type in fields.items():
+            if field_type == KeyFieldTypes.HASH:
+                self.partition_key = field
+
+            if field_type == KeyFieldTypes.RANGE:
+                self.sort_key = field
 
 
 class LocalSecondaryIndex(DynamoIndex):
