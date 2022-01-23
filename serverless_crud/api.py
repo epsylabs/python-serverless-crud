@@ -99,7 +99,7 @@ class BaseAPI(abc.ABC):
     ):
         pass
 
-    def resources(self):
+    def resources(self, service=None):
         from troposphere import dynamodb, iam
 
         resources = []
@@ -107,6 +107,13 @@ class BaseAPI(abc.ABC):
             resources.append(dynamodb.Table(model._meta.table_name, **model_to_table_specification(model)))
 
         statements = self.policy_statements.all()
+
+        try:
+            statements += service.provider.iam.statements
+        except AttributeError as e:
+            raise e
+            pass
+
         if not statements:
             return resources
 

@@ -15,11 +15,11 @@ class Manager:
         self.service_name = Identifier(os.getenv("SERVICE_NAME", "api"))
         self.stage = os.getenv("STAGE", "current")
 
-    def resources(self):
+    def resources(self, service=None):
         resources = []
-        resources += self.rest.resources()
-        resources += self.graphql.resources()
-        resources += self.appsync.resources()
+        resources += self.rest.resources(service=service)
+        resources += self.graphql.resources(service=service)
+        resources += self.appsync.resources(service=service)
 
         return resources
 
