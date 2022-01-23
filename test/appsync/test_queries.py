@@ -6,7 +6,7 @@ def test_get_device(app):
 
     result = app.appsync.handle(mock_event, {})
 
-    assert result.id == "xxx-yyy-zzz"
+    assert result.get("id") == "xxx-yyy-zzz"
 
 
 def test_list_devices(app):
@@ -15,4 +15,4 @@ def test_list_devices(app):
     result = app.appsync.handle(mock_event, {})
 
     assert len(result) == 1
-    assert result[0].id == "xxx-yyy-zzz"
+    assert result[0].get("id") == "xxx-yyy-zzz"

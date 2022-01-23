@@ -21,6 +21,6 @@ class UpdateAction(Action):
         try:
             result = table.put_item(**query)
 
-            return result, obj
+            return result, obj.dict()
         except dynamodb.exceptions.ConditionalCheckFailedException as e:
             return EntityNotFoundException()

@@ -25,11 +25,9 @@ class GetAction(Action):
             if not item:
                 raise EntityNotFoundException()
 
-            obj = self.model(**item)
-
-            if self.model._meta.owner_field and getattr(obj, self.model._meta.owner_field) != identity(event):
+            if self.model._meta.owner_field and item.get(self.model._meta.owner_field) != identity(event):
                 raise EntityNotFoundException()
 
-            return response, obj
+            return response, item
         except SchemaValidationError as e:
             raise EntityNotFoundException()

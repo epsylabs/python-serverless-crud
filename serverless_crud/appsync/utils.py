@@ -15,8 +15,8 @@ def response_handler(f):
 
             if isinstance(obj, JsonResponse):
                 return obj.raw_body
-            # elif isinstance(obj, BaseModel):
-            #     return obj.dict()
+            elif isinstance(obj, BaseModel):
+                return obj.dict()
             else:
                 return obj
         except InvalidPayloadException as e:

@@ -67,7 +67,7 @@ class SearchAction(Action, ABC):
             index = self.model._meta.get_index(index_name)
             response = self._fetch_items(event, dynamodb, table, index)
 
-            return response, [self.model(**result) for result in response["Items"]]
+            return response, response["Items"]
         except ValidationError as e:
             raise ValidationException(e)
 

@@ -18,7 +18,7 @@ class Device(BaseModel):
     user: str = None
 
 
-@pytest.fixture(autouse=True, scope="package")
+@pytest.fixture(autouse=True, scope="function")
 def dynamo():
     with mock_dynamodb2():
         dynamo = boto3.resource("dynamodb")

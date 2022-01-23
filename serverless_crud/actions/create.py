@@ -24,6 +24,6 @@ class CreateAction(Action):
 
             result = table.put_item(**query)
 
-            return result, obj
+            return result, obj.dict()
         except dynamodb.exceptions.ConditionalCheckFailedException as e:
             raise DuplicatedEntityException()
