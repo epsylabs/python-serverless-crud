@@ -2,7 +2,7 @@
   "typeName": "Query",
   "fieldName": "getDevice",
   "arguments": {
-    "id": "242942344"
+    "id": "xxx-yyy-zzz"
   },
   "identity": {
     "claims": {
