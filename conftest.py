@@ -10,30 +10,16 @@ from serverless_crud.model import BaseModel
 @pytest.fixture(autouse=True, scope="module")
 @mock_dynamodb2
 def app():
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource("dynamodb")
     dynamodb.create_table(
-        TableName='Device',
-        KeySchema=[
-            {
-                'AttributeName': 'id',
-                'KeyType': 'HASH'
-            }
-        ],
-        AttributeDefinitions=[
-            {
-                'AttributeName': 'id',
-                'AttributeType': 'S'
-            }
-        ]
+        TableName="Device",
+        KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
+        AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
     )
 
     table = dynamodb.Table("Device")
     table.put_item(
-        Item={
-            "id": "xxx-yyy-zzz",
-            "created": 1234567889,
-            "user": "5b9b13f1-dd60-43e4-a986-ea2a0e2ee90a"
-        },
+        Item={"id": "xxx-yyy-zzz", "created": 1234567889, "user": "5b9b13f1-dd60-43e4-a986-ea2a0e2ee90a"},
     )
 
     @db.Model(
