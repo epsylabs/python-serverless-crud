@@ -4,6 +4,7 @@ from aws_lambda_powertools.event_handler.appsync import Router
 from serverless_crud.actions import GetAction, CreateAction, UpdateAction, DeleteAction, ListAction
 from serverless_crud.api import BaseAPI
 from serverless_crud.appsync.utils import response_handler
+from serverless_crud.builders.graphql import GraphqlBuilder
 
 
 class PrimaryKey:
@@ -21,6 +22,7 @@ class AppSyncAPI(BaseAPI):
     def __init__(self, manager) -> None:
         super().__init__(manager)
         self.app = AppSyncResolver()
+        self.graphql_builder = GraphqlBuilder()
 
     def handle(self, event, context):
         return self.app.resolve(event, context)
@@ -55,6 +57,7 @@ class AppSyncAPI(BaseAPI):
         lookup_list=ListAction,
     ):
         super().registry(model, alias, get, create, update, delete, lookup_list, None, None)
+        self.graphql_builder.register(model, get, create, update, delete, lookup_list)
 
     def _create_model_app(
         self,

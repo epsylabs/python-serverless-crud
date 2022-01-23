@@ -1,25 +1,17 @@
-import os
-from io import StringIO
-from typing import List
-
-import graphene
-import inflect
-from graphene_pydantic import PydanticObjectType
-
+from serverless_crud.actions import GetAction, CreateAction, UpdateAction, DeleteAction, ListAction
 from serverless_crud.api import BaseAPI
-from serverless_crud.model import BaseModel
+from serverless_crud.builders.graphql import GraphqlBuilder
 
 
 class GraphQLAPI(BaseAPI):
     def __init__(self, manager) -> None:
         super().__init__(manager)
-        self.inflect_engine = inflect.engine()
+        self.graphql_builder = GraphqlBuilder()
 
-    def handle(self, event, context):
-        pass
-
-    def registry(self, model, **kwargs):
-        self.models.append(model)
+    def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
+                 lookup_list=ListAction):
+        super().registry(model, alias, get, create, update, delete, lookup_list, None, None)
+        self.graphql_builder.register(model, get, create, update, delete, lookup_list)
 
     def _create_model_app(
         self,
@@ -55,32 +47,3 @@ class GraphQLAPI(BaseAPI):
         )
 
         return self._function
-
-    def render(self, output=None):
-        converted = self._convert_models(self.models)
-
-        if not output:
-            output = os.path.join(os.getcwd(), "schema.graphql")
-        with open(output, "w") as f:
-            f.write(converted.getvalue())
-
-    def _convert_models(self, models: List[BaseModel]):
-        converted = StringIO()
-        prepared = list(
-            map(lambda model: type(model.__name__, (PydanticObjectType,), {"Meta": {"model": model}}), models)
-        )
-
-        converted.write(str(graphene.Schema(types=prepared)))
-        for model in prepared:
-            converted.write(
-                """
-type Query {
-  get<<MODEL>>: <<MODEL>> @function(name: "FUNCTION-NAME")
-  list<<MODEL_PLURAL>>: @function(name: "FUNCTION-NAME")
-}""".replace(
-                    "<<MODEL>>", model.__name__
-                ).replace(
-                    "<<MODEL_PLURAL>>", self.inflect_engine.plural(model.__name__)
-                )
-            )
-        return converted
