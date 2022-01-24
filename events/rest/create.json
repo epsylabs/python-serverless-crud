@@ -132,6 +132,6 @@
     "domainName": "v772jbxum9.execute-api.us-east-1.amazonaws.com",
     "apiId": "v772jbxum9"
   },
-  "body": "{\"id\": 242942344, \"created\": 23423452534}",
+  "body": "{\"id\": \"242942344\", \"created\": 23423452534}",
   "isBase64Encoded": false
 }

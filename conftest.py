@@ -54,7 +54,7 @@ def dynamo():
 def app():
     api = Manager()
 
-    api.rest.registry(Device, alias="device")
+    api.rest.registry(Device)
     api.appsync.registry(Device)
 
     return api

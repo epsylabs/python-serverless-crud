@@ -64,10 +64,11 @@ class RestAPI(BaseAPI):
                 response, obj = create_callback(
                     payload=router.current_event.json_body, event=router.current_event, context=router.lambda_context
                 )
+
                 if isinstance(obj, Response):
                     return obj
 
-                return JsonResponse(201, obj.dict())
+                return JsonResponse(201, obj)
 
         if update_callback:
 
@@ -79,7 +80,7 @@ class RestAPI(BaseAPI):
                 if isinstance(obj, Response):
                     return obj
 
-                return JsonResponse(201, obj.dict())
+                return JsonResponse(201, obj)
 
         if delete_callback:
 
@@ -105,7 +106,7 @@ class RestAPI(BaseAPI):
                 if isinstance(objs, Response):
                     return objs
 
-                return JsonResponse(200, [obj.dict() for obj in objs])
+                return JsonResponse(200, objs)
 
             router.get(f"/lookup/{alias}/list/<index>")(lookup_list)
             router.get(f"/lookup/{alias}/list")(lookup_list)
@@ -120,7 +121,7 @@ class RestAPI(BaseAPI):
                 if isinstance(objs, Response):
                     return objs
 
-                return JsonResponse(200, [obj.dict() for obj in objs])
+                return JsonResponse(200, objs)
 
             router.post(f"/lookup/{alias}/scan/<index>")(lookup_scan)
             router.post(f"/lookup/{alias}/scan")(lookup_scan)
@@ -135,7 +136,7 @@ class RestAPI(BaseAPI):
                 if isinstance(objs, Response):
                     return objs
 
-                return JsonResponse(200, [obj.dict() for obj in objs])
+                return JsonResponse(200, objs)
 
             router.post(f"/lookup/{alias}/query/<index>")(lookup_query)
             router.post(f"/lookup/{alias}/query")(lookup_query)
