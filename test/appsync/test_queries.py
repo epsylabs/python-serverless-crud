@@ -14,5 +14,5 @@ def test_list_devices(app):
 
     result = app.appsync.handle(mock_event, {})
 
-    assert len(result) == 1
-    assert result[0].get("id") == "xxx-yyy-zzz"
+    assert len(result.get("items")) == 1
+    assert result.get("items")[0].get("id") == "xxx-yyy-zzz"

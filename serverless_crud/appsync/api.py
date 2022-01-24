@@ -93,7 +93,9 @@ class AppSyncAPI(BaseAPI):
             @router.resolver(type_name="Mutation", field_name=f"update{alias}")
             @response_handler
             def update(input, *args, **kwargs):
-                return update_callback(router.current_event, router.lambda_context)
+                primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in input.items()})
+
+                return update_callback(primary_key=primary_key, payload=input, event=router.current_event, context=router.lambda_context)
 
         if delete_callback:
 
