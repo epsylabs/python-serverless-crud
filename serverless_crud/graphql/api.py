@@ -4,6 +4,9 @@ from serverless_crud.builders.graphql import GraphqlBuilder
 
 
 class GraphQLAPI(BaseAPI):
+    def handle(self, event, context):
+        pass
+
     def __init__(self, manager) -> None:
         super().__init__(manager)
         self.graphql_builder = GraphqlBuilder()

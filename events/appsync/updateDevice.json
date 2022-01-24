@@ -3,7 +3,7 @@
   "fieldName": "updateDevice",
   "arguments": {
     "input": {
-      "id": "zzz-yyy-xxx",
+      "id": "xxx-yyy-zzz",
       "created": 99999999
     }
   },

@@ -36,12 +36,6 @@ class PrimaryKey:
 
         return query
 
-    def append_key_expression(self, query: dict):
-        query["KeyConditionExpression"] = Key()
-        query["ExpressionAttributeNames"] = {"#partition_key": self.partition_key}
-
-        return query
-
 
 class DynamoIndex:
     def __init__(self, name, projection=Projection.KEYS_ONLY, non_key_attributes=None, **fields):

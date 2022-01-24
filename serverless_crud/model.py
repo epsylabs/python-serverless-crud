@@ -3,6 +3,17 @@ from aws_lambda_powertools.utilities.parser import BaseModel as ParserBaseModel
 from serverless_crud.dynamodb.annotation import DynamodbMetadata
 
 
+class PrimaryKey:
+    def __init__(self, **kwargs):
+        self._values = kwargs
+
+    def raw(self):
+        return self._values
+
+    def __repr__(self):
+        return str(self._values)
+
+
 class BaseModel(ParserBaseModel):
     _meta: DynamodbMetadata = None
 
@@ -11,6 +22,10 @@ class BaseModel(ParserBaseModel):
 
     def get_primary_key(self):
         return {f: getattr(self, f) for f in self._meta.key.key_fields.keys()}
+
+    @classmethod
+    def primary_key_from_payload(cls, payload):
+        return PrimaryKey(**{f: payload.get(f) for f in cls._meta.key.key_fields.keys()})
 
     @classmethod
     def key_schema(cls):
