@@ -51,11 +51,12 @@ class RestAPI(BaseAPI):
         if get_callback:
             @router.get(id_route_pattern)
             def get(*args, **kwargs):
-                primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
-
-                return get_callback(
+                primary_key = model.primary_key_from_payload(kwargs)
+                response, obj = get_callback(
                     *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
+
+                return obj
 
         if create_callback:
 
