@@ -1,6 +1,6 @@
 {
   "resource": "/rest/{proxy+}",
-  "path": "/rest/device/12312335",
+  "path": "/rest/device/xxx-yyy-zzz",
   "httpMethod": "GET",
   "headers": {
     "Accept": "*/*",
@@ -73,14 +73,14 @@
   "queryStringParameters": null,
   "multiValueQueryStringParameters": null,
   "pathParameters": {
-    "proxy": "device/12312335"
+    "proxy": "device/xxx-yyy-zzz"
   },
   "stageVariables": null,
   "requestContext": {
     "resourceId": "c2p7es",
     "authorizer": {
       "claims": {
-        "sub": "5b9b13f1-dd60-43e4-a986-ea2a0e2ee90a",
+        "sub": "0b44ac7a-c793-4e4d-9b2d-0634be07598f",
         "email_verified": "true",
         "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_FCl7gKtHC",
         "phone_number_verified": "true",
@@ -104,7 +104,7 @@
     "httpMethod": "GET",
     "extendedRequestId": "MNz8qGsOIAMFoiw=",
     "requestTime": "19/Jan/2022:23:08:26 +0000",
-    "path": "/playground/rest/device/12312335",
+    "path": "/playground/rest/device/xxx-yyy-zzz",
     "accountId": "772962929486",
     "protocol": "HTTP/1.1",
     "stage": "playground",
