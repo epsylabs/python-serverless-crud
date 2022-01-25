@@ -11,8 +11,16 @@ class GraphQLAPI(BaseAPI):
         super().__init__(manager)
         self.graphql_builder = GraphqlBuilder()
 
-    def registry(self, model, alias=None, get=GetAction, create=CreateAction, update=UpdateAction, delete=DeleteAction,
-                 lookup_list=ListAction):
+    def registry(
+        self,
+        model,
+        alias=None,
+        get=GetAction,
+        create=CreateAction,
+        update=UpdateAction,
+        delete=DeleteAction,
+        lookup_list=ListAction,
+    ):
         super().registry(model, alias, get, create, update, delete, lookup_list, None, None)
         self.graphql_builder.register(model, get, create, update, delete, lookup_list)
 

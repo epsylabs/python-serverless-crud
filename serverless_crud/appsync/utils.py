@@ -1,7 +1,11 @@
 from functools import wraps
 
-from serverless_crud.exceptions import APIException, ValidationException, EntityNotFoundException, \
-    InvalidPayloadException
+from serverless_crud.exceptions import (
+    APIException,
+    ValidationException,
+    EntityNotFoundException,
+    InvalidPayloadException,
+)
 from serverless_crud.logger import logger
 from serverless_crud.model import BaseModel
 from serverless_crud.rest.http import JsonResponse

@@ -15,6 +15,7 @@ class Transporter:
         self.delete = bool(delete)
         self.lookup_list = bool(lookup_list)
 
+
 class GraphqlBuilder:
     def __init__(self):
         self.inflect_engine = inflect.engine()
@@ -28,7 +29,10 @@ class GraphqlBuilder:
 
     def _build(self):
         return list(
-            map(lambda transporter: self._build_model_type(transporter.model.__name__, transporter.model), self.transporters)
+            map(
+                lambda transporter: self._build_model_type(transporter.model.__name__, transporter.model),
+                self.transporters,
+            )
         )
 
     def as_string(self):
@@ -43,9 +47,7 @@ class GraphqlBuilder:
             model_name = transporter.model.__name__
             plural = self.inflect_engine.plural(model_name)
             if transporter.get:
-                queries.append(
-                    f'get{model_name}: {model_name} @function(name: "appsync")'
-                )
+                queries.append(f'get{model_name}: {model_name} @function(name: "appsync")')
             if transporter.lookup_list:
                 converted.write("type <<MODEL>>List {\n".replace("<<MODEL>>", model_name))
                 converted.write(f"items: [{model_name}]\nnextToken: String\n")
@@ -54,11 +56,13 @@ class GraphqlBuilder:
 
             if any((transporter.create, transporter.update)):
                 converted.write(
-                    str(graphene.Schema(types=[self._build_model_type(model_name+"Input", transporter.model)]))
+                    str(graphene.Schema(types=[self._build_model_type(model_name + "Input", transporter.model)]))
                 )
             for action in ("create", "update"):
                 if getattr(transporter, action):
-                    mutations.append(f'{action}{model_name}(input: {model_name}Input!): {model_name} @function(name: "appsync")')
+                    mutations.append(
+                        f'{action}{model_name}(input: {model_name}Input!): {model_name} @function(name: "appsync")'
+                    )
 
             if transporter.delete:
                 mutations.append(f'delete{model_name}(id: ID!): {model_name} @function(name: "appsync")')

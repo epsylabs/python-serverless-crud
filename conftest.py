@@ -25,21 +25,19 @@ def dynamo():
         dynamo.create_table(
             TableName="Device",
             KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
-            AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}, {"AttributeName": "user", "AttributeType": "S"}],
+            AttributeDefinitions=[
+                {"AttributeName": "id", "AttributeType": "S"},
+                {"AttributeName": "user", "AttributeType": "S"},
+            ],
             GlobalSecondaryIndexes=[
                 {
-                    'IndexName': 'by_user',
-                    'KeySchema': [
-                        {
-                            'AttributeName': 'user',
-                            'KeyType': 'HASH'
-                        },
+                    "IndexName": "by_user",
+                    "KeySchema": [
+                        {"AttributeName": "user", "KeyType": "HASH"},
                     ],
-                    "Projection": {
-                        "ProjectionType": "ALL"
-                    }
+                    "Projection": {"ProjectionType": "ALL"},
                 },
-            ]
+            ],
         )
 
         table = dynamo.Table("Device")

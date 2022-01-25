@@ -30,16 +30,16 @@ class RestAPI(BaseAPI):
         return self.app.resolve(event, context)
 
     def _create_model_app(
-            self,
-            model,
-            alias,
-            get_callback,
-            create_callback,
-            update_callback,
-            delete_callback,
-            lookup_list_callback,
-            lookup_scan_callback,
-            lookup_query_callback,
+        self,
+        model,
+        alias,
+        get_callback,
+        create_callback,
+        update_callback,
+        delete_callback,
+        lookup_list_callback,
+        lookup_scan_callback,
+        lookup_query_callback,
     ):
         router = Router()
         alias = alias.lower()
@@ -49,6 +49,7 @@ class RestAPI(BaseAPI):
             id_route_pattern += f"/<{model._meta.key.sort_key}>"
 
         if get_callback:
+
             @router.get(id_route_pattern)
             def get(*args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
@@ -76,8 +77,12 @@ class RestAPI(BaseAPI):
             @router.put(id_route_pattern)
             def update(*args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
-                response, obj = update_callback(primary_key=primary_key, payload=router.current_event.json_body, event=router.current_event,
-                                                context=router.lambda_context)
+                response, obj = update_callback(
+                    primary_key=primary_key,
+                    payload=router.current_event.json_body,
+                    event=router.current_event,
+                    context=router.lambda_context,
+                )
 
                 if isinstance(obj, Response):
                     return obj
