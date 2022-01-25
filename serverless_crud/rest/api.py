@@ -75,7 +75,8 @@ class RestAPI(BaseAPI):
 
             @router.put(id_route_pattern)
             def update(*args, **kwargs):
-                response, obj = update_callback(payload=router.current_event.json_body, event=router.current_event,
+                primary_key = model.primary_key_from_payload(kwargs)
+                response, obj = update_callback(primary_key=primary_key, payload=router.current_event.json_body, event=router.current_event,
                                                 context=router.lambda_context)
 
                 if isinstance(obj, Response):

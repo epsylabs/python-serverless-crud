@@ -1,6 +1,6 @@
 {
   "resource": "/rest/{proxy+}",
-  "path": "/rest/device/242942344",
+  "path": "/rest/device/xxx-yyy-zzz",
   "httpMethod": "PUT",
   "headers": {
     "Accept": "*/*",
@@ -77,7 +77,7 @@
   "queryStringParameters": null,
   "multiValueQueryStringParameters": null,
   "pathParameters": {
-    "proxy": "device/242942344"
+    "proxy": "device/xxx-yyy-zzz"
   },
   "stageVariables": null,
   "requestContext": {
