@@ -24,7 +24,12 @@ class Manager:
         return resources
 
     def functions(self, service, **kwargs):
-        return {f.name.snake: f for f in filter(None, [self.rest.function(service), self.graphql.function(service), self.appsync.function(service)])}
+        return {
+            f.name.snake: f
+            for f in filter(
+                None, [self.rest.function(service), self.graphql.function(service), self.appsync.function(service)]
+            )
+        }
 
     def configure(self, service_name=None, stage=None):
         if service_name:

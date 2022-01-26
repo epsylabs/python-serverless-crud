@@ -40,62 +40,64 @@ class GraphQLAPI(BaseAPI):
     ):
 
         handlers = {}
-
         if get_callback:
+
             def handler_get(parent, info, *args, **kwargs):
-                try:
-                    primary_key = model.primary_key_from_payload(kwargs)
-                    response, obj = get_callback(
-                        primary_key=primary_key,
-                        event=info.context.get("event"),
-                        context=info.context.get("context")
-                    )
-
-                    return obj
-                except Exception as e:
-                    pass
-
-                return None
+                primary_key = model.primary_key_from_payload(kwargs)
+                output_type = self.builder.get_type(model)
+                response, obj = get_callback(
+                    primary_key=primary_key, event=info.context.get("event"), context=info.context.get("context")
+                )
+                return output_type(**obj)
 
             handlers["get"] = handler_get
 
         if create_callback:
+
             def handler_create(parent, info, *args, **kwargs):
-                return {
-                    "created": 1231231,
-                    "id": "234234234",
-                    "user": "asdfadfasdf"
-                }
+                output_type = self.builder.get_type(model)
+                response, obj = create_callback(event=info.context.get("event"), context=info.context.get("context"))
+
+                return output_type(**obj)
 
             handlers["create"] = handler_create
 
         if update_callback:
+
             def handler_update(parent, info, *args, **kwargs):
-                return {
-                    "created": 1231231,
-                    "id": "234234234",
-                    "user": "asdfadfasdf"
-                }
+                primary_key = model.primary_key_from_payload(kwargs)
+                output_type = self.builder.get_type(model)
+                response, obj = update_callback(
+                    primary_key=primary_key, event=info.context.get("event"), context=info.context.get("context")
+                )
+
+                return output_type(**obj)
 
             handlers["update"] = handler_update
 
         if delete_callback:
+
             def handler_delete(parent, info, *args, **kwargs):
-                return {
-                    "created": 1231231,
-                    "id": "234234234",
-                    "user": "asdfadfasdf"
-                }
+                primary_key = model.primary_key_from_payload(kwargs)
+                output_type = self.builder.get_type(model)
+                response, obj = delete_callback(
+                    primary_key=primary_key, event=info.context.get("event"), context=info.context.get("context")
+                )
+
+                return output_type(**obj)
 
             handlers["delete"] = handler_delete
 
         if lookup_list_callback:
+
             def handler_lookup_list(parent, info, *args, **kwargs):
-                return {
-                    "created": 1231231,
-                    "id": "234234234",
-                    "user": "asdfadfasdf"
-                }
+                output_type = self.builder.get_type(model)
+
+                response, obj = lookup_list_callback(
+                    event=info.context.get("event"), context=info.context.get("context")
+                )
+
+                return list(map(lambda x: output_type(**x), obj))
 
             handlers["lookup_list"] = handler_lookup_list
 

@@ -6,4 +6,5 @@ def test_get_device(app):
 
     result = app.graphql.handle(mock_event, {})
 
-    print(result.formatted)
+    assert "getDevice" in result.data
+    assert result.data.get("getDevice").get("id") == "xxx-yyy-zzz"

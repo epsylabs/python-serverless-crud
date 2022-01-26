@@ -10,6 +10,7 @@ class SchemaBuilder:
 
     def registry(self, model, /, **actions):
         self.models[model] = actions
+        self.output_type = {}
 
     def build_schema(self):
         query_fields = {}
@@ -18,6 +19,8 @@ class SchemaBuilder:
             model_dto, input_dto = self.build_types(model.__name__, model)
             query_fields.update(self.build_query_fields(model_dto, model))
             mutation_fields.update(self.build_mutation_fields(model_dto, input_dto, model))
+
+            self.output_type[model] = model_dto
 
         Query = type("Query", (graphene.ObjectType,), query_fields)
 
@@ -35,16 +38,20 @@ class SchemaBuilder:
         queries = {}
 
         if self.models[model].get("get"):
-            queries.update({
-                f"get{model.__name__}": graphene.Field(model_dto, id=graphene.String(required=True)),
-                f"resolve_get{model.__name__}": self.models[model].get("get"),
-            })
+            queries.update(
+                {
+                    f"get{model.__name__}": graphene.Field(model_dto, id=graphene.String(required=True)),
+                    f"resolve_get{model.__name__}": self.models[model].get("get"),
+                }
+            )
 
         if self.models[model].get("lookup_list"):
-            queries.update({
-                f"list{model.__name__}": graphene.Field(model_dto),
-                f"resolve_list{model.__name__}": self.models[model].get("lookup_list"),
-            })
+            queries.update(
+                {
+                    f"list{model.__name__}": graphene.Field(model_dto),
+                    f"resolve_list{model.__name__}": self.models[model].get("lookup_list"),
+                }
+            )
 
         return queries
 
@@ -82,6 +89,9 @@ class SchemaBuilder:
             mutations[f"delete{model.__name__}"] = Delete.Field()
 
         return mutations
+
+    def get_type(self, model):
+        return self.output_type.get(model)
 
     def schema(self):
         return graphene.Schema(**self.build_schema())
