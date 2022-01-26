@@ -2,7 +2,7 @@ from test.utils import load_event
 
 
 def test_get_device(app):
-    mock_event = load_event("appsync/getDevice_cognito.json")
+    mock_event = load_event("appsync/getDevice.json")
 
     result = app.appsync.handle(mock_event, {})
 

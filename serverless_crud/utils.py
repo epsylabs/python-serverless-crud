@@ -10,7 +10,7 @@ def identity(event):
             owner = event.request_context.authorizer.claims["sub"]
         elif isinstance(event, AppSyncResolverEvent):
             owner = event.identity.get("claims")["sub"]
-        elif "x-amz-security-token" in event.get("headers") and "X-Authorization" not in event.get("headers"):
+        elif "x-amz-security-token" in event.get("headers", {}) and "X-Authorization" not in event.get("headers", {}):
             header = event.get("headers").get("X-Authorization")
             # it should be safe to ignore signature as request was authenticated via IAM, but it would be nice
             # to add verification at some point

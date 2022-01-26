@@ -44,7 +44,6 @@ class GraphQLAPI(BaseAPI):
         if get_callback:
             def handler_get(parent, info, *args, **kwargs):
                 try:
-                    print("-----------------------")
                     primary_key = model.primary_key_from_payload(kwargs)
                     response, obj = get_callback(
                         primary_key=primary_key,
@@ -52,21 +51,9 @@ class GraphQLAPI(BaseAPI):
                         context=info.context.get("context")
                     )
 
-
-                    print()
-                    # print(obj)
-
+                    return obj
                 except Exception as e:
-                    print("+++++++++++++++")
-                    print(e)
-
-                print("-----------------------")
-
-                #
-                # return obj
-
-                # print(info.context.get("event"))
-                # print(info.context.get("context"))
+                    pass
 
                 return None
 
