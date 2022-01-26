@@ -1,18 +1,20 @@
 from aws_lambda_powertools.event_handler import AppSyncResolver
 from aws_lambda_powertools.event_handler.appsync import Router
 
-from serverless_crud.actions import GetAction, CreateAction, UpdateAction, DeleteAction, ListAction
 from serverless_crud.api import BaseAPI
 from serverless_crud.appsync.utils import response_handler
-from serverless_crud.builders.graphql import GraphqlBuilder
-from serverless_crud.model import PrimaryKey
+from serverless_crud.builders.graphql import SchemaBuilder
+
+
+def dummy_handler(*args, **kwargs):
+    pass
 
 
 class AppSyncAPI(BaseAPI):
     def __init__(self, manager) -> None:
         super().__init__(manager)
         self.app = AppSyncResolver()
-        self.graphql_builder = GraphqlBuilder()
+        self.schema_builder = SchemaBuilder()
 
     def handle(self, event, context):
         return self.app.resolve(event, context)
@@ -36,20 +38,6 @@ class AppSyncAPI(BaseAPI):
 
         return self._function
 
-    def registry(
-        self,
-        model,
-        alias=None,
-        get=GetAction,
-        create=CreateAction,
-        update=UpdateAction,
-        delete=DeleteAction,
-        lookup_list=ListAction,
-        **kwargs,
-    ):
-        super().registry(model, alias, get, create, update, delete, lookup_list, None, None)
-        self.graphql_builder.register(model, get, create, update, delete, lookup_list)
-
     def _create_model_app(
         self,
         model,
@@ -63,6 +51,7 @@ class AppSyncAPI(BaseAPI):
         lookup_query_callback,
     ):
         router = Router()
+        handlers = {}
 
         if get_callback:
 
@@ -75,12 +64,16 @@ class AppSyncAPI(BaseAPI):
                     *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
 
+            handlers["get"] = dummy_handler
+
         if create_callback:
 
             @router.resolver(type_name="Mutation", field_name=f"create{alias}")
             @response_handler
             def create(input, *args, **kwargs):
                 return create_callback(payload=input, event=router.current_event, context=router.lambda_context)
+
+            handlers["create"] = dummy_handler
 
         if update_callback:
 
@@ -93,6 +86,8 @@ class AppSyncAPI(BaseAPI):
                     primary_key=primary_key, payload=input, event=router.current_event, context=router.lambda_context
                 )
 
+            handlers["update"] = dummy_handler
+
         if delete_callback:
 
             @router.resolver(type_name="Mutation", field_name=f"delete{alias}")
@@ -102,6 +97,8 @@ class AppSyncAPI(BaseAPI):
                 return delete_callback(
                     *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
+
+            handlers["delete"] = dummy_handler
 
         if lookup_list_callback:
 
@@ -117,4 +114,7 @@ class AppSyncAPI(BaseAPI):
                     index_name=index, event=router.current_event, context=router.lambda_context, *args, **kwargs
                 )
 
+            handlers["lookup_list"] = dummy_handler
+
         self.app.include_router(router)
+        self.schema_builder.registry(model, **handlers)

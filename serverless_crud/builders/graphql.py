@@ -1,84 +1,124 @@
 import os
 from io import StringIO
+from pathlib import Path
 
 import graphene
 import inflect
 from graphene_pydantic import PydanticObjectType
 
 
-class Transporter:
-    def __init__(self, model_object, get, create, update, delete, lookup_list):
-        self.model = model_object
-        self.get = bool(get)
-        self.create = bool(create)
-        self.update = bool(update)
-        self.delete = bool(delete)
-        self.lookup_list = bool(lookup_list)
+import uuid
+
+import graphene
+from graphene_pydantic import PydanticObjectType, PydanticInputObjectType
 
 
-class GraphqlBuilder:
+class SchemaBuilder:
     def __init__(self):
-        self.inflect_engine = inflect.engine()
-        self.transporters = []
+        self.models = {}
+        self.output_type = {}
 
-    def register(self, model, get=False, create=False, update=False, delete=False, lookup_list=False):
-        self.transporters.append(Transporter(model, get, create, update, delete, lookup_list))
+    def registry(self, model, /, **actions):
+        self.models[model] = actions
 
-    def _build_model_type(self, model_name, model):
-        return type(model_name, (PydanticObjectType,), {"Meta": {"model": model}})
+    def build_schema(self):
+        query_fields = {}
+        mutation_fields = {}
+        for model in self.models.keys():
+            model_dto, input_dto = self.build_types(model.__name__, model)
+            query_fields.update(self.build_query_fields(model_dto, model))
+            mutation_fields.update(self.build_mutation_fields(model_dto, input_dto, model))
 
-    def _build(self):
-        return list(
-            map(
-                lambda transporter: self._build_model_type(transporter.model.__name__, transporter.model),
-                self.transporters,
-            )
+            self.output_type[model] = model_dto
+
+        Query = type("Query", (graphene.ObjectType,), query_fields)
+
+        Mutation = type("Mutation", (graphene.ObjectType,), mutation_fields)
+
+        return dict(query=Query, mutation=Mutation)
+
+    def build_types(self, model_name, model_type):
+        return (
+            type(model_name, (PydanticObjectType,), {"Meta": {"model": model_type}}),
+            type(f"{model_name}Input", (PydanticInputObjectType,), {"Meta": {"model": model_type}}),
         )
 
-    def as_string(self):
-        converted = StringIO()
-        schema = graphene.Schema(types=self._build())
+    def build_query_fields(self, model_dto, model):
+        queries = {}
 
-        converted.write(str(schema))
+        if self.models[model].get("get"):
+            queries.update(
+                {
+                    f"get{model.__name__}": graphene.Field(model_dto, id=graphene.String(required=True)),
+                    f"resolve_get{model.__name__}": self.models[model].get("get"),
+                }
+            )
 
-        queries = []
-        mutations = []
-        for transporter in self.transporters:
-            model_name = transporter.model.__name__
-            plural = self.inflect_engine.plural(model_name)
-            if transporter.get:
-                queries.append(f'get{model_name}: {model_name} @function(name: "appsync")')
-            if transporter.lookup_list:
-                converted.write("type <<MODEL>>List {\n".replace("<<MODEL>>", model_name))
-                converted.write(f"items: [{model_name}]\nnextToken: String\n")
-                converted.write("}\n")
-                queries.append(f'list{plural}(nextToken: String): {model_name}List @function(name: "appsync")')
+        if self.models[model].get("lookup_list"):
+            queries.update(
+                {
+                    f"list{model.__name__}": graphene.Field(model_dto),
+                    f"resolve_list{model.__name__}": self.models[model].get("lookup_list"),
+                }
+            )
 
-            if any((transporter.create, transporter.update)):
-                converted.write(
-                    str(graphene.Schema(types=[self._build_model_type(model_name + "Input", transporter.model)]))
-                )
-            for action in ("create", "update"):
-                if getattr(transporter, action):
-                    mutations.append(
-                        f'{action}{model_name}(input: {model_name}Input!): {model_name} @function(name: "appsync")'
-                    )
+        return queries
 
-            if transporter.delete:
-                mutations.append(f'delete{model_name}(id: ID!): {model_name} @function(name: "appsync")')
+    def build_mutation_fields(self, model_dto, input_dto, model):
+        def mutate_(parent, info, input):
+            return model(id=str(uuid.uuid4()), created=23423423, user=str(uuid.uuid4()))
 
-        if queries:
-            converted.write("type Query {\n")
-            converted.write("\n".join(queries))
-            converted.write("\n}\n")
+        InputArguments = type("Arguments", (), {"input": input_dto(required=True), "nextToken": graphene.String()})
+        IdArguments = type("Arguments", (), {"id": graphene.String(required=True)})
 
-        if mutations:
-            converted.write("type Mutation {\n")
-            converted.write("\n".join(mutations))
-            converted.write("\n}\n")
+        mutations = {}
 
-        return converted.getvalue()
+        if self.models[model].get("create"):
+            Create = type(
+                f"Create{model.__name__}",
+                (graphene.Mutation,),
+                {"Arguments": InputArguments, "Output": model_dto, "mutate": mutate_},
+            )
+            mutations[f"create{model.__name__}"] = Create.Field()
 
-    def save_to_file(self):
-        with open(os.path.join(os.getcwd(), "schema.graphql"), "w") as f:
-            f.write(self.as_string())
+        if self.models[model].get("update"):
+            Update = type(
+                f"Update{model.__name__}",
+                (graphene.Mutation,),
+                {"Arguments": InputArguments, "Output": model_dto, "mutate": mutate_},
+            )
+            mutations[f"update{model.__name__}"] = Update.Field()
+
+        if self.models[model].get("delete"):
+            Delete = type(
+                f"Delete{model.__name__}",
+                (graphene.Mutation,),
+                {"Arguments": IdArguments, "Output": model_dto, "mutate": mutate_},
+            )
+            mutations[f"delete{model.__name__}"] = Delete.Field()
+
+        return mutations
+
+    def get_type(self, model):
+        return self.output_type.get(model)
+
+    def schema(self):
+        return graphene.Schema(**self.build_schema())
+
+    def render(self, output=None):
+        if output:
+            output.write(str(self.dump()))
+            return
+
+        import __main__ as main
+
+        with open(Path(main.__file__).stem, "w+") as f:
+            f.write(str(self.dump()))
+
+    def dump(self):
+        return str(self.schema())
+
+
+class AppSyncSchemaBuilder(SchemaBuilder):
+    def dump(self):
+        gql = super().dump()

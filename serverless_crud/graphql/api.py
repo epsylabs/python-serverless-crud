@@ -1,17 +1,17 @@
 from serverless_crud.actions import GetAction, CreateAction, UpdateAction, DeleteAction, ListAction
 from serverless_crud.api import BaseAPI
-from serverless_crud.graphql.builder import SchemaBuilder
+from serverless_crud.builders.graphql import SchemaBuilder
 
 
 class GraphQLAPI(BaseAPI):
     def handle(self, event, context):
-        schema = self.builder.schema()
+        schema = self.schema_builder.schema()
 
         return schema.execute(event.get("body"), context=dict(event=event, context=context))
 
     def __init__(self, manager) -> None:
         super().__init__(manager)
-        self.builder = SchemaBuilder()
+        self.schema_builder = SchemaBuilder()
 
     def registry(
         self,
@@ -44,7 +44,7 @@ class GraphQLAPI(BaseAPI):
 
             def handler_get(parent, info, *args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
-                output_type = self.builder.get_type(model)
+                output_type = self.schema_builder.get_type(model)
                 response, obj = get_callback(
                     primary_key=primary_key, event=info.context.get("event"), context=info.context.get("context")
                 )
@@ -55,7 +55,7 @@ class GraphQLAPI(BaseAPI):
         if create_callback:
 
             def handler_create(parent, info, *args, **kwargs):
-                output_type = self.builder.get_type(model)
+                output_type = self.schema_builder.get_type(model)
                 response, obj = create_callback(event=info.context.get("event"), context=info.context.get("context"))
 
                 return output_type(**obj)
@@ -66,7 +66,7 @@ class GraphQLAPI(BaseAPI):
 
             def handler_update(parent, info, *args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
-                output_type = self.builder.get_type(model)
+                output_type = self.schema_builder.get_type(model)
                 response, obj = update_callback(
                     primary_key=primary_key, event=info.context.get("event"), context=info.context.get("context")
                 )
@@ -79,7 +79,7 @@ class GraphQLAPI(BaseAPI):
 
             def handler_delete(parent, info, *args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
-                output_type = self.builder.get_type(model)
+                output_type = self.schema_builder.get_type(model)
                 response, obj = delete_callback(
                     primary_key=primary_key, event=info.context.get("event"), context=info.context.get("context")
                 )
@@ -101,10 +101,7 @@ class GraphQLAPI(BaseAPI):
 
             handlers["lookup_list"] = handler_lookup_list
 
-        self.builder.registry(model, **handlers)
-
-    def schema(self):
-        return self.builder.schema()
+        self.schema_builder.registry(model, **handlers)
 
     def function(self, service, handler=None, **kwargs):
         if not self.models:
