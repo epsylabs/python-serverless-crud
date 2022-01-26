@@ -3,7 +3,7 @@ from aws_lambda_powertools.event_handler.appsync import Router
 
 from serverless_crud.api import BaseAPI
 from serverless_crud.appsync.utils import response_handler
-from serverless_crud.builders.graphql import SchemaBuilder
+from serverless_crud.builders.graphql import AppSyncSchemaBuilder
 
 
 def dummy_handler(*args, **kwargs):
@@ -14,7 +14,7 @@ class AppSyncAPI(BaseAPI):
     def __init__(self, manager) -> None:
         super().__init__(manager)
         self.app = AppSyncResolver()
-        self.schema_builder = SchemaBuilder()
+        self.schema_builder = AppSyncSchemaBuilder()
 
     def handle(self, event, context):
         return self.app.resolve(event, context)

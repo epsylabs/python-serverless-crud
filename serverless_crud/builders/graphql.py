@@ -1,4 +1,5 @@
 import os
+import re
 from io import StringIO
 from pathlib import Path
 
@@ -120,5 +121,26 @@ class SchemaBuilder:
 
 
 class AppSyncSchemaBuilder(SchemaBuilder):
+    def __init__(self):
+        super().__init__()
+        self.handler = "appsync"
+
     def dump(self):
         gql = super().dump()
+
+        global_regex = r"(type\s+(Query|Mutation)\s+{(?P<definitions>.*?)})"
+        definition_regex = r"^(.+)$"
+
+        matches = re.finditer(global_regex, gql, re.MULTILINE | re.VERBOSE | re.DOTALL)
+        for m in matches:
+            block = m.groupdict().get("definitions")
+            for definition in re.findall(definition_regex, block, re.MULTILINE):
+                block = block.replace(definition, f"{definition} @function(name: \"{self.handler}\")")
+
+            gql = gql.replace(m.groupdict().get("definitions"), block)
+
+        return gql
+
+    def render(self, output=None, handler=None):
+        self.handler = handler or "appsync"
+        super().render(output)
