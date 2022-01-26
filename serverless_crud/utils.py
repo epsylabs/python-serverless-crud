@@ -1,21 +1,20 @@
 import jwt
 import stringcase
-from aws_lambda_powertools.utilities.data_classes import AppSyncResolverEvent, APIGatewayProxyEvent
 
 
 def identity(event):
     owner = "anon."
     try:
-        if isinstance(event, APIGatewayProxyEvent):
-            owner = event.request_context.authorizer.claims["sub"]
-        elif isinstance(event, AppSyncResolverEvent):
-            owner = event.identity.get("claims")["sub"]
-        elif "x-amz-security-token" in event.get("headers", {}) and "X-Authorization" not in event.get("headers", {}):
+        if event.get("requestContext", {}).get("authorizer", {}).get("claims", {}).get("sub"):
+            owner = event.get("requestContext", {}).get("authorizer", {}).get("claims", {}).get("sub")
+        elif event.get("identity", {}).get("claims", {}).get("sub"):
+            owner = event.get("identity", {}).get("claims", {}).get("sub")
+        elif "x-amz-security-token" in event.get("headers", {}) and "X-Authorization" in event.get("headers", {}):
             header = event.get("headers").get("X-Authorization")
             # it should be safe to ignore signature as request was authenticated via IAM, but it would be nice
             # to add verification at some point
             decoded = jwt.decode(header, options={"verify_signature": False})
-            print(decoded)
+            owner = decoded.get("sub")
     except (KeyError, AttributeError):
         pass
 
