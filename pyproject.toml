@@ -23,6 +23,7 @@ graphene = "^3.0"
 stringcase = "^1.2.0"
 inflect = "^5.3.0"
 graphene-pydantic = {git = "https://github.com/epsylabs/graphene-pydantic.git"}
+PyJWT = "^2.3.0"
 
 [tool.poetry.extras]
 sentry = ["sentry-sdk"]

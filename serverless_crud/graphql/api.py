@@ -1,15 +1,17 @@
 from serverless_crud.actions import GetAction, CreateAction, UpdateAction, DeleteAction, ListAction
 from serverless_crud.api import BaseAPI
-from serverless_crud.builders.graphql import GraphqlBuilder
+from serverless_crud.graphql.builder import SchemaBuilder
 
 
 class GraphQLAPI(BaseAPI):
     def handle(self, event, context):
-        pass
+        schema = self.builder.schema()
+
+        return schema.execute(event.get("body"), context=dict(event=event, context=context))
 
     def __init__(self, manager) -> None:
         super().__init__(manager)
-        self.graphql_builder = GraphqlBuilder()
+        self.builder = SchemaBuilder()
 
     def registry(
         self,
@@ -20,9 +22,9 @@ class GraphQLAPI(BaseAPI):
         update=UpdateAction,
         delete=DeleteAction,
         lookup_list=ListAction,
+        **kwargs,
     ):
         super().registry(model, alias, get, create, update, delete, lookup_list, None, None)
-        self.graphql_builder.register(model, get, create, update, delete, lookup_list)
 
     def _create_model_app(
         self,
@@ -36,7 +38,84 @@ class GraphQLAPI(BaseAPI):
         lookup_scan_callback,
         lookup_query_callback,
     ):
-        pass
+
+        handlers = {}
+
+        if get_callback:
+            def handler_get(parent, info, *args, **kwargs):
+                try:
+                    print("-----------------------")
+                    primary_key = model.primary_key_from_payload(kwargs)
+                    response, obj = get_callback(
+                        primary_key=primary_key,
+                        event=info.context.get("event"),
+                        context=info.context.get("context")
+                    )
+
+
+                    print()
+                    # print(obj)
+
+                except Exception as e:
+                    print("+++++++++++++++")
+                    print(e)
+
+                print("-----------------------")
+
+                #
+                # return obj
+
+                # print(info.context.get("event"))
+                # print(info.context.get("context"))
+
+                return None
+
+            handlers["get"] = handler_get
+
+        if create_callback:
+            def handler_create(parent, info, *args, **kwargs):
+                return {
+                    "created": 1231231,
+                    "id": "234234234",
+                    "user": "asdfadfasdf"
+                }
+
+            handlers["create"] = handler_create
+
+        if update_callback:
+            def handler_update(parent, info, *args, **kwargs):
+                return {
+                    "created": 1231231,
+                    "id": "234234234",
+                    "user": "asdfadfasdf"
+                }
+
+            handlers["update"] = handler_update
+
+        if delete_callback:
+            def handler_delete(parent, info, *args, **kwargs):
+                return {
+                    "created": 1231231,
+                    "id": "234234234",
+                    "user": "asdfadfasdf"
+                }
+
+            handlers["delete"] = handler_delete
+
+        if lookup_list_callback:
+            def handler_lookup_list(parent, info, *args, **kwargs):
+                return {
+                    "created": 1231231,
+                    "id": "234234234",
+                    "user": "asdfadfasdf"
+                }
+
+            handlers["lookup_list"] = handler_lookup_list
+
+        self.builder.registry(model, **handlers)
+
+    def schema(self):
+        return self.builder.schema()
 
     def function(self, service, handler=None, **kwargs):
         if not self.models:

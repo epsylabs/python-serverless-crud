@@ -45,6 +45,7 @@ class AppSyncAPI(BaseAPI):
         update=UpdateAction,
         delete=DeleteAction,
         lookup_list=ListAction,
+        **kwargs,
     ):
         super().registry(model, alias, get, create, update, delete, lookup_list, None, None)
         self.graphql_builder.register(model, get, create, update, delete, lookup_list)

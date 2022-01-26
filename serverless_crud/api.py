@@ -52,6 +52,10 @@ class BaseAPI(abc.ABC):
     def name(self):
         return Identifier(type(self).__name__)
 
+    @property
+    def api_type(self):
+        return Identifier(type(self).__name__)
+
     def registry(
         self,
         model,
@@ -63,6 +67,7 @@ class BaseAPI(abc.ABC):
         lookup_list=ListAction,
         lookup_scan=ScanAction,
         lookup_query=QueryAction,
+        **kwargs,
     ):
         self.models.append(model)
         self.policy_statements.get_statement("DynamodbTables").get("Resource").append(

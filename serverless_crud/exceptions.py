@@ -8,8 +8,12 @@ from pydantic import ValidationError
 class APIException(Exception):
     def __init__(self, http_code, message=None, json_body=None, *args: object) -> None:
         super().__init__(message, *args)
+        self.message = message
         self.http_code = http_code
         self.json_body = json_body
+
+    def __str__(self):
+        return self.message
 
     def as_response(self):
         return Response(

@@ -54,5 +54,6 @@ def app():
 
     api.rest.registry(Device)
     api.appsync.registry(Device)
+    api.graphql.registry(Device)
 
     return api
