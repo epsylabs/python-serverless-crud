@@ -19,8 +19,8 @@ class PrimaryKey:
 
 
 class RestAPI(BaseAPI):
-    def __init__(self, manager) -> None:
-        super().__init__(manager)
+    def __init__(self, manager, name: str = None) -> None:
+        super().__init__(manager, name)
         self.app = ApiGatewayResolver(strip_prefixes=[f"/rest"])
 
         @self.app.exception_handler(APIException)
@@ -107,9 +107,7 @@ class RestAPI(BaseAPI):
 
             @response_handler(status_code=200)
             def lookup_scan(*args, **kwargs):
-                return lookup_scan_callback(
-                    event=router.current_event, context=router.lambda_context, *args, **kwargs
-                )
+                return lookup_scan_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
 
             router.post(f"/lookup/{alias}/scan/<index>")(lookup_scan)
             router.post(f"/lookup/{alias}/scan")(lookup_scan)
@@ -118,9 +116,7 @@ class RestAPI(BaseAPI):
 
             @response_handler(status_code=200)
             def lookup_query(*args, **kwargs):
-                return lookup_query_callback(
-                    event=router.current_event, context=router.lambda_context, *args, **kwargs
-                )
+                return lookup_query_callback(event=router.current_event, context=router.lambda_context, *args, **kwargs)
 
             router.post(f"/lookup/{alias}/query/<index>")(lookup_query)
             router.post(f"/lookup/{alias}/query")(lookup_query)
@@ -137,7 +133,7 @@ class RestAPI(BaseAPI):
         handler = handler or f"{service.service.snake}.handlers.rest_handler"
 
         self._function = service.builder.function.http(
-            "rest",
+            self.name.spinal,
             "REST API",
             "/rest/{proxy+}",
             "ANY",

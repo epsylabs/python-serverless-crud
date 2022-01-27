@@ -11,8 +11,8 @@ def dummy_handler(*args, **kwargs):
 
 
 class AppSyncAPI(BaseAPI):
-    def __init__(self, manager) -> None:
-        super().__init__(manager)
+    def __init__(self, manager, name: str = None) -> None:
+        super().__init__(manager, name)
         self.app = AppSyncResolver()
         self.schema_builder = AppSyncSchemaBuilder()
 
@@ -29,7 +29,7 @@ class AppSyncAPI(BaseAPI):
         handler = handler or f"{service.service.snake}.handlers.appsync_handler"
 
         self._function = service.builder.function.generic(
-            "appsync",
+            self.name.spinal,
             "AppSync API resolver",
             handler=handler,
             role=f"arn:aws:iam::${{aws:accountId}}:role/{self.iam_execution_role_name()}",

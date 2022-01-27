@@ -135,7 +135,7 @@ class AppSyncSchemaBuilder(SchemaBuilder):
         for m in matches:
             block = m.groupdict().get("definitions")
             for definition in re.findall(definition_regex, block, re.MULTILINE):
-                block = block.replace(definition, f"{definition} @function(name: \"{self.handler}\")")
+                block = block.replace(definition, f'{definition} @function(name: "{self.handler}")')
 
             gql = gql.replace(m.groupdict().get("definitions"), block)
 

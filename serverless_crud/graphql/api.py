@@ -9,8 +9,8 @@ class GraphQLAPI(BaseAPI):
 
         return schema.execute(event.get("body"), context=dict(event=event, context=context))
 
-    def __init__(self, manager) -> None:
-        super().__init__(manager)
+    def __init__(self, manager, name: str = None) -> None:
+        super().__init__(manager, name)
         self.schema_builder = SchemaBuilder()
 
     def registry(
@@ -113,7 +113,7 @@ class GraphQLAPI(BaseAPI):
         handler = f"{service.service.snake}.handlers.graphql_handler"
 
         self._function = service.builder.function.http(
-            "graphql",
+            self.name.spinal,
             "GraphQL API",
             "/graphql",
             "ANY",

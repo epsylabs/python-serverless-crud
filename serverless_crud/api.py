@@ -19,7 +19,7 @@ except ImportError:
 
 
 class BaseAPI(abc.ABC):
-    def __init__(self, manager):
+    def __init__(self, manager, name=None):
         self.models = []
         self.manager = manager
         self.policy_statements = PolicyBuilder(
@@ -41,20 +41,12 @@ class BaseAPI(abc.ABC):
                 }
             ]
         )
-
+        self.name = Identifier(name or type(self).__name__.lower().replace("api", ""))
         self._function = None
 
     @abc.abstractmethod
     def handle(self, event, context):
         pass
-
-    @property
-    def name(self):
-        return Identifier(type(self).__name__)
-
-    @property
-    def api_type(self):
-        return Identifier(type(self).__name__)
 
     def registry(
         self,
@@ -107,6 +99,9 @@ class BaseAPI(abc.ABC):
     def resources(self, service=None):
         from troposphere import dynamodb, iam
 
+        if not self.models:
+            return []
+
         resources = []
         for model in self.models:
             resources.append(dynamodb.Table(model._meta.table_name, **model_to_table_specification(model)))
@@ -123,7 +118,7 @@ class BaseAPI(abc.ABC):
             return resources
 
         role = iam.Role(
-            f"{type(self).__name__}ExecutionRole",
+            f"{self.name.pascal}ExecutionRole",
             AssumeRolePolicyDocument={
                 "Version": "2012-10-17",
                 "Statement": [
