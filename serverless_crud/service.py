@@ -22,7 +22,15 @@ class Manager:
         return resources
 
     def functions(self, service, **kwargs):
-        return {f.name.snake: f for f in filter(None, [api.function(service) for api in self.apis.values()])}
+        functions = {}
+        for api in self.apis.values():
+            function = api.function(service)
+            if not function:
+                continue
+
+            functions[api.name.spinal] = function
+
+        return functions
 
     @property
     def rest(self):
