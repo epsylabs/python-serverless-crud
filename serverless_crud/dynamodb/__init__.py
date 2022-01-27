@@ -5,14 +5,14 @@ import boto3
 
 
 def with_dynamodb(f):
-    if not hasattr(f, "dynamodb"):
-        setattr(f, "dynamodb", boto3.client("dynamodb"))
-
-    dynamodb = getattr(f, "dynamodb")
-
     @wraps(f)
     def wrapper(self, *args, **kwds):
         sig = inspect.signature(f)
+
+        if not hasattr(f, "dynamodb"):
+            setattr(f, "dynamodb", boto3.client("dynamodb"))
+
+        dynamodb = getattr(f, "dynamodb")
 
         if "dynamodb" in sig.parameters:
             kwds["dynamodb"] = dynamodb
