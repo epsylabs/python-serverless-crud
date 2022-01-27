@@ -17,8 +17,8 @@ name = "fury"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-sentry-sdk = {version="^1.5.2", optional=true}
-aws-lambda-powertools = {extras = ["pydantic"], version = "^1.24.0"}
+sentry-sdk = {version="~1.5", optional=true}
+aws-lambda-powertools = {extras = ["pydantic"], version = "~1.24"}
 graphene = "^3.0"
 stringcase = "^1.2.0"
 inflect = "^5.3.0"
@@ -32,8 +32,8 @@ sentry = ["sentry-sdk"]
 black = "^21.12b0"
 isort = "^5.10"
 troposphere = "^3.2.2"
-pytest = "^6.2.5"
-moto = "^3.0.0"
+pytest = "~6.2"
+moto = "~3.0"
 
 [tool.black]
 line-length = 120
