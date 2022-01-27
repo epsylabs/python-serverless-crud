@@ -4,6 +4,7 @@ from aws_lambda_powertools.event_handler.api_gateway import Router, Response
 from serverless_crud.api import BaseAPI
 from serverless_crud.exceptions import APIException
 from serverless_crud.rest.http import JsonResponse
+from serverless_crud.rest.utils import response_handler
 
 
 class PrimaryKey:
@@ -62,88 +63,64 @@ class RestAPI(BaseAPI):
         if create_callback:
 
             @router.post(f"/{alias}")
+            @response_handler(status_code=201)
             def create():
-                response, obj = create_callback(
+                return create_callback(
                     payload=router.current_event.json_body, event=router.current_event, context=router.lambda_context
                 )
-
-                if isinstance(obj, Response):
-                    return obj
-
-                return JsonResponse(201, obj)
 
         if update_callback:
 
             @router.put(id_route_pattern)
+            @response_handler(status_code=201)
             def update(*args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
-                response, obj = update_callback(
+                return update_callback(
                     primary_key=primary_key,
                     payload=router.current_event.json_body,
                     event=router.current_event,
                     context=router.lambda_context,
                 )
 
-                if isinstance(obj, Response):
-                    return obj
-
-                return JsonResponse(201, obj)
-
         if delete_callback:
 
             @router.delete(id_route_pattern)
+            @response_handler(status_code=200)
             def delete(*args, **kwargs):
                 primary_key = PrimaryKey(**{k: model.cast_to_type(k, v) for k, v in kwargs.items()})
-                response, obj = delete_callback(
+                return delete_callback(
                     *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
 
-                if isinstance(obj, Response):
-                    return obj
-
-                return JsonResponse(200, {})
-
         if lookup_list_callback:
 
+            @response_handler(status_code=200)
             def lookup_list(index=None, *args, **kwargs):
-                response, objs = lookup_list_callback(
+                return lookup_list_callback(
                     index_name=index, event=router.current_event, context=router.lambda_context, *args, **kwargs
                 )
-
-                if isinstance(objs, Response):
-                    return objs
-
-                return JsonResponse(200, objs)
 
             router.get(f"/lookup/{alias}/list/<index>")(lookup_list)
             router.get(f"/lookup/{alias}/list")(lookup_list)
 
         if lookup_scan_callback:
 
+            @response_handler(status_code=200)
             def lookup_scan(*args, **kwargs):
-                response, objs = lookup_scan_callback(
+                return lookup_scan_callback(
                     event=router.current_event, context=router.lambda_context, *args, **kwargs
                 )
-
-                if isinstance(objs, Response):
-                    return objs
-
-                return JsonResponse(200, objs)
 
             router.post(f"/lookup/{alias}/scan/<index>")(lookup_scan)
             router.post(f"/lookup/{alias}/scan")(lookup_scan)
 
         if lookup_query_callback:
 
+            @response_handler(status_code=200)
             def lookup_query(*args, **kwargs):
-                response, objs = lookup_query_callback(
+                return lookup_query_callback(
                     event=router.current_event, context=router.lambda_context, *args, **kwargs
                 )
-
-                if isinstance(objs, Response):
-                    return objs
-
-                return JsonResponse(200, objs)
 
             router.post(f"/lookup/{alias}/query/<index>")(lookup_query)
             router.post(f"/lookup/{alias}/query")(lookup_query)
