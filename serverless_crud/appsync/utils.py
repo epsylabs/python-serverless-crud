@@ -23,13 +23,15 @@ def response_handler(f):
                 return obj.dict()
             else:
                 return obj
-        except InvalidPayloadException as e:
-            return {"kind": e.msg}
-        except ValidationException as e:
-            return {"kind": "validation"}
-        except EntityNotFoundException as e:
-            return {"kind": "404"}
-        except APIException as e:
-            logger.exception(e)
+        except Exception as e:
+            raise e
+        # except InvalidPayloadException as e:
+        #     return {"kind": e.msg}
+        # except ValidationException as e:
+        #     return {"kind": "validation"}
+        # except EntityNotFoundException as e:
+        #     return {"kind": "404"}
+        # except APIException as e:
+        #     logger.exception(e)
 
     return handler
