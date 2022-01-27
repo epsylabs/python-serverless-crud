@@ -91,7 +91,7 @@ class GraphQLAPI(BaseAPI):
         if lookup_list_callback:
 
             def handler_lookup_list(parent, info, *args, **kwargs):
-                output_type = self.builder.get_type(model)
+                output_type = self.schema_builder.get_type(model)
 
                 response, obj = lookup_list_callback(
                     event=info.context.get("event"), context=info.context.get("context")
