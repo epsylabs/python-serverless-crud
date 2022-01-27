@@ -22,7 +22,7 @@ aws-lambda-powertools = {extras = ["pydantic"], version = "^1.24.0"}
 graphene = "^3.0"
 stringcase = "^1.2.0"
 inflect = "^5.3.0"
-graphene-pydantic = {git = "https://github.com/epsylabs/graphene-pydantic.git"}
+graphene-pydantic = "^0.3.0"
 PyJWT = "^2.3.0"
 
 [tool.poetry.extras]
