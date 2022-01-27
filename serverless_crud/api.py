@@ -3,7 +3,6 @@ import abc
 from serverless_crud.actions import *
 from serverless_crud.actions.search import ListAction, ScanAction, QueryAction
 from serverless_crud.aws.iam import PolicyBuilder
-from serverless_crud.dynamodb.builder import model_to_table_specification
 from serverless_crud.utils import Identifier
 
 try:
@@ -99,6 +98,7 @@ class BaseAPI(abc.ABC):
 
     def resources(self, service=None):
         from troposphere import dynamodb, iam
+        from serverless_crud.dynamodb.builder import model_to_table_specification
 
         if not self.models:
             return []
