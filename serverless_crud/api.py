@@ -19,7 +19,7 @@ except ImportError:
 
 
 class BaseAPI(abc.ABC):
-    def __init__(self, manager, name=None):
+    def __init__(self, manager, name=None, description=None):
         self.models = []
         self.manager = manager
         self.policy_statements = PolicyBuilder(
@@ -42,6 +42,7 @@ class BaseAPI(abc.ABC):
             ]
         )
         self.name = Identifier(name or type(self).__name__.lower().replace("api", ""))
+        self.description = description
         self._function = None
 
     @abc.abstractmethod

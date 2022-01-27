@@ -19,8 +19,8 @@ class PrimaryKey:
 
 
 class RestAPI(BaseAPI):
-    def __init__(self, manager, name: str = None) -> None:
-        super().__init__(manager, name)
+    def __init__(self, manager, name: str = None, description: str = None) -> None:
+        super().__init__(manager, name, description)
         self.app = ApiGatewayResolver(strip_prefixes=[f"/rest"])
 
         @self.app.exception_handler(APIException)
@@ -130,11 +130,11 @@ class RestAPI(BaseAPI):
         if self._function:
             return self._function
 
-        handler = handler or f"{service.service.snake}.handlers.rest_handler"
+        handler = handler or f"{service.service.snake}.handlers.{self.name.snake}_handler"
 
         self._function = service.builder.function.http(
             self.name.spinal,
-            "REST API",
+            self.description or "REST API",
             "/rest/{proxy+}",
             "ANY",
             handler=handler,
