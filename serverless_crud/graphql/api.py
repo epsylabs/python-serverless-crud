@@ -115,7 +115,7 @@ class GraphQLAPI(BaseAPI):
         self._function = service.builder.function.http(
             self.name.spinal,
             self.description or "GraphQL API",
-            "/graphql",
+            f"/{self.name.spinal}",
             "ANY",
             handler=handler,
             role=f"arn:aws:iam::${{aws:accountId}}:role/{self.iam_execution_role_name()}",

@@ -21,7 +21,7 @@ class PrimaryKey:
 class RestAPI(BaseAPI):
     def __init__(self, manager, name: str = None, description: str = None) -> None:
         super().__init__(manager, name, description)
-        self.app = ApiGatewayResolver(strip_prefixes=[f"/rest"])
+        self.app = ApiGatewayResolver(strip_prefixes=[f"/{self.name.spinal}"])
 
         @self.app.exception_handler(APIException)
         def handle_api_exception(ex: APIException):
@@ -135,7 +135,7 @@ class RestAPI(BaseAPI):
         self._function = service.builder.function.http(
             self.name.spinal,
             self.description or "REST API",
-            "/rest/{proxy+}",
+            f"/{self.name.spinal}/{{proxy+}}",
             "ANY",
             handler=handler,
             role=f"arn:aws:iam::${{aws:accountId}}:role/{self.iam_execution_role_name()}",
