@@ -2,8 +2,7 @@ class PolicyBuilder:
     def __init__(self, statements=None):
         statements = statements or []
         if isinstance(statements, dict):
-            statements = list(statements)
-
+            statements = [statements]
         self.statements = {statement.get("Sid"): statement for statement in statements}
 
     def get_statement(self, sid):
