@@ -1,17 +1,21 @@
 from serverless_crud.actions import GetAction, CreateAction, UpdateAction, DeleteAction, ListAction
 from serverless_crud.api import BaseAPI
+from serverless_crud.aws.iam import PolicyBuilder
 from serverless_crud.builders.graphql import SchemaBuilder
+from serverless_crud.utils import Identifier
 
 
 class GraphQLAPI(BaseAPI):
+    def __init__(
+        self, service_name: Identifier, policy_builder: PolicyBuilder = None, name: str = None, description: str = None
+    ) -> None:
+        super().__init__(service_name, policy_builder, name, description)
+        self.schema_builder = SchemaBuilder()
+
     def handle(self, event, context):
         schema = self.schema_builder.schema()
 
         return schema.execute(event.get("body"), context=dict(event=event, context=context))
-
-    def __init__(self, manager, name: str = None, description: str = None) -> None:
-        super().__init__(manager, name, description)
-        self.schema_builder = SchemaBuilder()
 
     def registry(
         self,

@@ -18,28 +18,12 @@ except ImportError:
 
 
 class BaseAPI(abc.ABC):
-    def __init__(self, manager, name=None, description=None):
+    def __init__(
+        self, service_name: Identifier, policy_builder: PolicyBuilder = None, name: str = None, description: str = None
+    ):
         self.models = []
-        self.manager = manager
-        self.policy_statements = PolicyBuilder(
-            statements=[
-                {
-                    "Sid": "DynamodbTables",
-                    "Effect": "Allow",
-                    "Action": [
-                        "dynamodb:BatchGet*",
-                        "dynamodb:Get*",
-                        "dynamodb:Query",
-                        "dynamodb:Scan",
-                        "dynamodb:BatchWrite*",
-                        "dynamodb:Delete*",
-                        "dynamodb:Update*",
-                        "dynamodb:PutItem",
-                    ],
-                    "Resource": [],
-                }
-            ]
-        )
+        self.service_name = service_name
+        self.policy_builder = policy_builder
         self.name = Identifier(name or type(self).__name__.lower().replace("api", ""))
         self.description = description
         self._function = None
@@ -62,12 +46,7 @@ class BaseAPI(abc.ABC):
         **kwargs,
     ):
         self.models.append(model)
-        self.policy_statements.get_statement("DynamodbTables").get("Resource").append(
-            Sub(f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:table/{model._meta.table_name}")
-        )
-        self.policy_statements.get_statement("DynamodbTables").get("Resource").append(
-            Sub(f"arn:aws:dynamodb:${{AWS::Region}}:${{AWS::AccountId}}:table/{model._meta.table_name}/index/*")
-        )
+        self.policy_builder.registry(model)
         alias = alias or model.__name__
         self._create_model_app(
             model,
@@ -107,7 +86,7 @@ class BaseAPI(abc.ABC):
         for model in self.models:
             resources.append(dynamodb.Table(model._meta.table_name, **model_to_table_specification(model)))
 
-        statements = self.policy_statements.all()
+        statements = self.policy_builder.all()
 
         try:
             statements += service.provider.iam.statements
@@ -144,7 +123,7 @@ class BaseAPI(abc.ABC):
         pass
 
     def iam_execution_role_name(self):
-        return f"{self.manager.service_name.spinal}-${{aws:region}}-${{sls:stage}}-{self.name.lower}-role"
+        return f"{self.service_name.spinal}-${{aws:region}}-${{sls:stage}}-{self.name.lower}-role"
 
     def __call__(self, event, context, *args, **kwargs):
         return self.handle(event, context)

@@ -23,7 +23,7 @@ graphene = "^3.0"
 stringcase = "^1.2.0"
 inflect = "^5.3.0"
 graphene-pydantic = "^0.3.0"
-PyJWT = "^2.3.0"
+PyJWT = "^1.7"
 
 [tool.poetry.extras]
 sentry = ["sentry-sdk"]

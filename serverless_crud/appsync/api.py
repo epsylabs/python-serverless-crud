@@ -3,7 +3,9 @@ from aws_lambda_powertools.event_handler.appsync import Router
 
 from serverless_crud.api import BaseAPI
 from serverless_crud.appsync.utils import response_handler
+from serverless_crud.aws.iam import PolicyBuilder
 from serverless_crud.builders.graphql import AppSyncSchemaBuilder
+from serverless_crud.utils import Identifier
 
 
 def dummy_handler(*args, **kwargs):
@@ -11,8 +13,10 @@ def dummy_handler(*args, **kwargs):
 
 
 class AppSyncAPI(BaseAPI):
-    def __init__(self, manager, name: str = None, description: str = None) -> None:
-        super().__init__(manager, name, description)
+    def __init__(
+        self, service_name: Identifier, policy_builder: PolicyBuilder = None, name: str = None, description: str = None
+    ) -> None:
+        super().__init__(service_name, policy_builder, name, description)
         self.app = AppSyncResolver()
         self.schema_builder = AppSyncSchemaBuilder()
 
