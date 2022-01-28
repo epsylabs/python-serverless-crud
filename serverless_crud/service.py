@@ -1,5 +1,3 @@
-import os
-
 from serverless_crud.appsync import AppSyncAPI
 from serverless_crud.aws.iam import PolicyBuilder
 from serverless_crud.graphql import GraphQLAPI
@@ -8,14 +6,14 @@ from serverless_crud.utils import Identifier
 
 
 class Manager:
-    def __init__(self, policy_builder: PolicyBuilder = None):
-        self.service_name = Identifier(os.getenv("SERVICE_NAME", "api"))
+    def __init__(self, service_name: str, stage: str, policy_builder: PolicyBuilder = None):
+        self.service_name = Identifier(service_name)
         self.apis = dict(
             rest=RestAPI(self.service_name, policy_builder),
             graphql=GraphQLAPI(self.service_name, policy_builder),
             appsync=AppSyncAPI(self.service_name, policy_builder),
         )
-        self.stage = os.getenv("STAGE", "current")
+        self.stage = stage
 
     def resources(self, service=None):
         resources = []
