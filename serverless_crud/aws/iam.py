@@ -34,7 +34,7 @@ class PolicyBuilder:
         ]
 
 
-class DynamoDBPolicy(PolicyBuilder):
+class DynamoDBPolicyBuilder(PolicyBuilder):
     def __init__(self):
         statements = {
             "Sid": "DynamodbTables",
