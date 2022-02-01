@@ -1,17 +1,13 @@
-import os
 import re
-from io import StringIO
 from pathlib import Path
 
-import graphene
-import inflect
-from graphene_pydantic import PydanticObjectType
-
-
 import uuid
+from typing import List
 
 import graphene
 from graphene_pydantic import PydanticObjectType, PydanticInputObjectType
+
+from serverless_crud.model import BaseModel
 
 
 class SchemaBuilder:
@@ -25,18 +21,20 @@ class SchemaBuilder:
     def build_schema(self):
         query_fields = {}
         mutation_fields = {}
+        types = []
         for model in self.models.keys():
             model_dto, input_dto = self.build_types(model.__name__, model)
-            query_fields.update(self.build_query_fields(model_dto, model))
+            built_query_fields, built_types = self.build_query_fields(model_dto, model)
+            query_fields.update(built_query_fields)
+            types += built_types
             mutation_fields.update(self.build_mutation_fields(model_dto, input_dto, model))
 
             self.output_type[model] = model_dto
 
         Query = type("Query", (graphene.ObjectType,), query_fields)
-
         Mutation = type("Mutation", (graphene.ObjectType,), mutation_fields)
 
-        return dict(query=Query, mutation=Mutation)
+        return dict(query=Query, mutation=Mutation, types=types)
 
     def build_types(self, model_name, model_type):
         return (
@@ -46,6 +44,7 @@ class SchemaBuilder:
 
     def build_query_fields(self, model_dto, model):
         queries = {}
+        types = []
 
         if self.models[model].get("get"):
             queries.update(
@@ -56,14 +55,21 @@ class SchemaBuilder:
             )
 
         if self.models[model].get("lookup_list"):
+            class ConnectionModel(BaseModel):
+                items: List[model] = None
+                nextToken: str = None
+
+            ModelConnectionPydantic = type(f"{model.__name__}Connection", (PydanticObjectType,), {"Meta": {"model": ConnectionModel}})
+            types.append(ModelConnectionPydantic)
+
             queries.update(
                 {
-                    f"list{model.__name__}": graphene.Field(model_dto),
+                    f"list{model.__name__}": graphene.Field(ModelConnectionPydantic),
                     f"resolve_list{model.__name__}": self.models[model].get("lookup_list"),
                 }
             )
 
-        return queries
+        return queries, types
 
     def build_mutation_fields(self, model_dto, input_dto, model):
         def mutate_(parent, info, input):
