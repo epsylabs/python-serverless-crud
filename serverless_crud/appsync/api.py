@@ -1,3 +1,5 @@
+import logging
+
 from aws_lambda_powertools.event_handler import AppSyncResolver
 from aws_lambda_powertools.event_handler.appsync import Router
 
@@ -105,20 +107,23 @@ class AppSyncAPI(BaseAPI):
             handlers["delete"] = dummy_handler
 
         if lookup_list_callback:
-
-            @router.resolver(type_name="Query", field_name=f"list{alias}s")
+            @router.resolver(type_name="Query", field_name=f"list{alias}")
             @response_handler
             def lookup_list(index=None, *args, **kwargs):
                 if not index:
-                    index = next(
-                        iter([idx.name for idx in model._meta.indexes if idx.partition_key == model._meta.owner_field])
-                    )
+                    try:
+                        index = next(
+                            iter([idx.name for idx in getattr(model._meta, "indexes", []) if idx.partition_key == model._meta.owner_field])
+                        )
+                    except StopIteration:
+                        logging.info("We were unable to find partition key.")
+                        index = None
 
                 return lookup_list_callback(
                     index_name=index, event=router.current_event, context=router.lambda_context, *args, **kwargs
                 )
 
-            handlers["lookup_list"] = dummy_handler
+            handlers["lookup_list"] = lookup_list
 
         self.app.include_router(router)
         self.schema_builder.registry(model, **handlers)
