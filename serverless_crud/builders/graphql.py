@@ -59,12 +59,16 @@ class SchemaBuilder:
                 items: List[model] = None
                 nextToken: str = None
 
-            ModelConnectionPydantic = type(f"{model.__name__}Connection", (PydanticObjectType,), {"Meta": {"model": ConnectionModel}})
+            ModelConnectionPydantic = type(
+                f"{model.__name__}Connection", (PydanticObjectType,), {"Meta": {"model": ConnectionModel}}
+            )
             types.append(ModelConnectionPydantic)
 
             queries.update(
                 {
-                    f"list{model.__name__}": graphene.Field(ModelConnectionPydantic),
+                    f"list{model.__name__}": graphene.Field(
+                        ModelConnectionPydantic, limit=graphene.Int(), nextToken=graphene.String()
+                    ),
                     f"resolve_list{model.__name__}": self.models[model].get("lookup_list"),
                 }
             )
