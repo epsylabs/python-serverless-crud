@@ -70,7 +70,7 @@ class AppSyncAPI(BaseAPI):
                     *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
 
-            handlers["get"] = dummy_handler
+            handlers["get"] = get
 
         if create_callback:
 
@@ -79,7 +79,7 @@ class AppSyncAPI(BaseAPI):
             def create(input, *args, **kwargs):
                 return create_callback(payload=input, event=router.current_event, context=router.lambda_context)
 
-            handlers["create"] = dummy_handler
+            handlers["create"] = create
 
         if update_callback:
 
@@ -92,7 +92,7 @@ class AppSyncAPI(BaseAPI):
                     primary_key=primary_key, payload=input, event=router.current_event, context=router.lambda_context
                 )
 
-            handlers["update"] = dummy_handler
+            handlers["update"] = update
 
         if delete_callback:
 
@@ -104,16 +104,23 @@ class AppSyncAPI(BaseAPI):
                     *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
 
-            handlers["delete"] = dummy_handler
+            handlers["delete"] = delete
 
         if lookup_list_callback:
+
             @router.resolver(type_name="Query", field_name=f"list{alias}")
             @response_handler
             def lookup_list(index=None, *args, **kwargs):
                 if not index:
                     try:
                         index = next(
-                            iter([idx.name for idx in getattr(model._meta, "indexes", []) if idx.partition_key == model._meta.owner_field])
+                            iter(
+                                [
+                                    idx.name
+                                    for idx in getattr(model._meta, "indexes", [])
+                                    if idx.partition_key == model._meta.owner_field
+                                ]
+                            )
                         )
                     except StopIteration:
                         logging.info("We were unable to find partition key.")
