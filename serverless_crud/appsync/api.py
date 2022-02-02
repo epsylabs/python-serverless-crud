@@ -108,6 +108,7 @@ class AppSyncAPI(BaseAPI):
 
         if lookup_list_callback:
             @router.resolver(type_name="Query", field_name=f"list{alias}")
+            @response_handler
             def lookup_list(index=None, *args, **kwargs):
                 if not index:
                     try:
