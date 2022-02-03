@@ -1,10 +1,11 @@
 from aws_lambda_powertools.event_handler import ApiGatewayResolver
-from aws_lambda_powertools.event_handler.api_gateway import Router, Response
+from aws_lambda_powertools.event_handler.api_gateway import Router
 
 from serverless_crud.api import BaseAPI
+from serverless_crud.aws.iam import PolicyBuilder
 from serverless_crud.exceptions import APIException
-from serverless_crud.rest.http import JsonResponse
 from serverless_crud.rest.utils import response_handler
+from serverless_crud.utils import Identifier
 
 
 class PrimaryKey:
@@ -19,8 +20,10 @@ class PrimaryKey:
 
 
 class RestAPI(BaseAPI):
-    def __init__(self, manager, name: str = None, description: str = None) -> None:
-        super().__init__(manager, name, description)
+    def __init__(
+        self, service_name: Identifier, policy_builder: PolicyBuilder = None, name: str = None, description: str = None
+    ) -> None:
+        super().__init__(service_name, policy_builder, name, description)
         self.app = ApiGatewayResolver(strip_prefixes=[f"/{self.name.spinal}"])
 
         @self.app.exception_handler(APIException)

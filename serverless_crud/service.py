@@ -1,17 +1,28 @@
 import os
 
 from serverless_crud.appsync import AppSyncAPI
+from serverless_crud.aws.iam import PolicyBuilder, DynamoDBPolicyBuilder
 from serverless_crud.graphql import GraphQLAPI
 from serverless_crud.rest import RestAPI
 from serverless_crud.utils import Identifier
 
 
 class Manager:
-    def __init__(self):
-        self.apis = dict(rest=RestAPI(self), graphql=GraphQLAPI(self), appsync=AppSyncAPI(self))
-
-        self.service_name = Identifier(os.getenv("SERVICE_NAME", "api"))
-        self.stage = os.getenv("STAGE", "current")
+    def __init__(
+        self,
+        service_name: str = None,
+        stage: str = None,
+        rest_policy_builder: PolicyBuilder = None,
+        graphql_policy_builder: PolicyBuilder = None,
+        appsync_policy_builder: PolicyBuilder = None,
+    ):
+        self.service_name = Identifier(service_name or os.getenv("SERVICE_NAME", "api"))
+        self.apis = dict(
+            rest=RestAPI(self.service_name, rest_policy_builder or DynamoDBPolicyBuilder()),
+            graphql=GraphQLAPI(self.service_name, graphql_policy_builder or DynamoDBPolicyBuilder()),
+            appsync=AppSyncAPI(self.service_name, appsync_policy_builder or DynamoDBPolicyBuilder()),
+        )
+        self.stage = stage or os.getenv("STAGE", "current")
 
     def resources(self, service=None):
         resources = []

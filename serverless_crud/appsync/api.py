@@ -1,9 +1,13 @@
+import logging
+
 from aws_lambda_powertools.event_handler import AppSyncResolver
 from aws_lambda_powertools.event_handler.appsync import Router
 
 from serverless_crud.api import BaseAPI
 from serverless_crud.appsync.utils import response_handler
+from serverless_crud.aws.iam import PolicyBuilder
 from serverless_crud.builders.graphql import AppSyncSchemaBuilder
+from serverless_crud.utils import Identifier
 
 
 def dummy_handler(*args, **kwargs):
@@ -11,8 +15,10 @@ def dummy_handler(*args, **kwargs):
 
 
 class AppSyncAPI(BaseAPI):
-    def __init__(self, manager, name: str = None, description: str = None) -> None:
-        super().__init__(manager, name, description)
+    def __init__(
+        self, service_name: Identifier, policy_builder: PolicyBuilder = None, name: str = None, description: str = None
+    ) -> None:
+        super().__init__(service_name, policy_builder, name, description)
         self.app = AppSyncResolver()
         self.schema_builder = AppSyncSchemaBuilder()
 
@@ -54,17 +60,15 @@ class AppSyncAPI(BaseAPI):
         handlers = {}
 
         if get_callback:
-
             @router.resolver(type_name="Query", field_name=f"get{alias}")
             @response_handler
             def get(*args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
-
                 return get_callback(
-                    *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
+                    *args, **kwargs, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
 
-            handlers["get"] = dummy_handler
+            handlers["get"] = get
 
         if create_callback:
 
@@ -73,7 +77,7 @@ class AppSyncAPI(BaseAPI):
             def create(input, *args, **kwargs):
                 return create_callback(payload=input, event=router.current_event, context=router.lambda_context)
 
-            handlers["create"] = dummy_handler
+            handlers["create"] = create
 
         if update_callback:
 
@@ -86,7 +90,7 @@ class AppSyncAPI(BaseAPI):
                     primary_key=primary_key, payload=input, event=router.current_event, context=router.lambda_context
                 )
 
-            handlers["update"] = dummy_handler
+            handlers["update"] = update
 
         if delete_callback:
 
@@ -98,23 +102,33 @@ class AppSyncAPI(BaseAPI):
                     *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
 
-            handlers["delete"] = dummy_handler
+            handlers["delete"] = delete
 
         if lookup_list_callback:
 
-            @router.resolver(type_name="Query", field_name=f"list{alias}s")
+            @router.resolver(type_name="Query", field_name=f"list{alias}")
             @response_handler
             def lookup_list(index=None, *args, **kwargs):
                 if not index:
-                    index = next(
-                        iter([idx.name for idx in model._meta.indexes if idx.partition_key == model._meta.owner_field])
-                    )
+                    try:
+                        index = next(
+                            iter(
+                                [
+                                    idx.name
+                                    for idx in getattr(model._meta, "indexes", [])
+                                    if idx.partition_key == model._meta.owner_field
+                                ]
+                            )
+                        )
+                    except StopIteration:
+                        logging.info("We were unable to find partition key.")
+                        index = None
 
                 return lookup_list_callback(
                     index_name=index, event=router.current_event, context=router.lambda_context, *args, **kwargs
                 )
 
-            handlers["lookup_list"] = dummy_handler
+            handlers["lookup_list"] = lookup_list
 
         self.app.include_router(router)
         self.schema_builder.registry(model, **handlers)

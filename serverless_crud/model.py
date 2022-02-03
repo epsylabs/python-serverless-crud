@@ -24,6 +24,13 @@ class BaseModel(ParserBaseModel):
         return {f: getattr(self, f) for f in self._meta.key.key_fields.keys()}
 
     @classmethod
+    def filter_by(cls):
+        """
+        List of fields you can filter model by. By default, all fields are returned.
+        """
+        return cls.schema().get("properties", {}).keys()
+
+    @classmethod
     def primary_key_from_payload(cls, payload):
         return PrimaryKey(**{f: payload.get(f) for f in cls._meta.key.key_fields.keys()})
 
