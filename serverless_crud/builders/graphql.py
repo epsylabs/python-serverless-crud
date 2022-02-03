@@ -31,10 +31,13 @@ class SchemaBuilder:
 
             self.output_type[model] = model_dto
 
-        Query = type("Query", (graphene.ObjectType,), query_fields)
-        Mutation = type("Mutation", (graphene.ObjectType,), mutation_fields)
+        params = {}
+        if query_fields:
+            params["query"] = type("Query", (graphene.ObjectType,), query_fields)
+        if mutation_fields:
+            params["mutation"] = type("Mutation", (graphene.ObjectType,), mutation_fields)
 
-        return dict(query=Query, mutation=Mutation, types=types)
+        return {**params, **dict(types=types)}
 
     def build_types(self, model_name, model_type):
         return (
