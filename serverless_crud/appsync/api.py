@@ -60,14 +60,12 @@ class AppSyncAPI(BaseAPI):
         handlers = {}
 
         if get_callback:
-
             @router.resolver(type_name="Query", field_name=f"get{alias}")
             @response_handler
             def get(*args, **kwargs):
                 primary_key = model.primary_key_from_payload(kwargs)
-
                 return get_callback(
-                    *args, primary_key=primary_key, event=router.current_event, context=router.lambda_context
+                    *args, **kwargs, primary_key=primary_key, event=router.current_event, context=router.lambda_context
                 )
 
             handlers["get"] = get
