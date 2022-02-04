@@ -1,19 +1,21 @@
 [tool.poetry]
 name = "python-serverless-crud"
 version = "0.1.0"
-homepage = "https://github.com/epsyhealth/python-serverless-crud.git"
-description = "Serverless CRUD API made easy"
-readme = "README.md"
+description="Simple and powerful tool for quick serverless data management via API. "
+keywords = ["library", "serverless"]
 authors = ["Epsy <engineering@epsyhealth.com>"]
 license = "MIT"
-
-packages = [
-    { include = "serverless_crud" }
+readme = "README.md"
+homepage = "https://github.com/epsylabs/serverless-builder"
+repository = "https://github.com/epsylabs/serverless-builder"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3 :: Only",
 ]
-
-[[tool.poetry.source]]
-url = "https://pypi.fury.io/epsy/"
-name = "fury"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -37,6 +39,9 @@ moto = "~3.0"
 
 [tool.black]
 line-length = 120
+
+[tool.isort]
+line_length = 120
 
 [build-system]
 requires = ["poetry>=0.12"]
