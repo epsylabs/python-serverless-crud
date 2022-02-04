@@ -17,6 +17,10 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 
+packages = [
+    { include = "serverless_crud" }
+]
+
 [tool.poetry.dependencies]
 python = "^3.8"
 sentry-sdk = {version="~1.5", optional=true}
