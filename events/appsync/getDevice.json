@@ -1,0 +1,71 @@
+{
+  "typeName": "Query",
+  "fieldName": "getDevice",
+  "arguments": {
+    "id": "xxx-yyy-zzz"
+  },
+  "identity": {
+    "claims": {
+      "sub": "0b44ac7a-c793-4e4d-9b2d-0634be07598f",
+      "email_verified": true,
+      "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_nhBsciuAR",
+      "cognito:username": "michal",
+      "origin_jti": "178edc5c-ecfc-4f96-9ac9-a018ea89b06f",
+      "aud": "2o5plejp1qp6ajiopml1k1sbjl",
+      "event_id": "5211e8ca-105e-4c47-902a-889390c59874",
+      "token_use": "id",
+      "auth_time": 1642759728,
+      "exp": 1642763328,
+      "iat": 1642759728,
+      "jti": "622655a5-d2a3-42f0-b5db-8e74589d5260",
+      "email": "michal@epsyhealth.com"
+    },
+    "defaultAuthStrategy": "ALLOW",
+    "groups": null,
+    "issuer": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_nhBsciuAR",
+    "sourceIp": [
+      "188.146.237.228"
+    ],
+    "sub": "0b44ac7a-c793-4e4d-9b2d-0634be07598f",
+    "username": "michal"
+  },
+  "source": null,
+  "request": {
+    "headers": {
+      "x-forwarded-for": "188.146.237.228, 54.239.171.77",
+      "sec-ch-ua-mobile": "?0",
+      "cloudfront-viewer-country": "PL",
+      "cloudfront-is-tablet-viewer": "false",
+      "x-amzn-requestid": "60aafcab-7fd9-46be-9317-361fe36e7bda",
+      "via": "2.0 8a90372b0bc378a280335b1e5010d8c4.cloudfront.net (CloudFront)",
+      "cloudfront-forwarded-proto": "https",
+      "origin": "https://console.aws.amazon.com",
+      "content-length": "121",
+      "x-forwarded-proto": "https",
+      "accept-language": "en-US,en;q=0.9,de;q=0.8,fr;q=0.7,pl;q=0.6,ro;q=0.5",
+      "host": "u466appoy5exzgtnvijhamgwp4.appsync-api.us-east-1.amazonaws.com",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36",
+      "cloudfront-is-mobile-viewer": "false",
+      "accept": "application/json, text/plain, */*",
+      "cloudfront-is-smarttv-viewer": "false",
+      "accept-encoding": "gzip, deflate, br",
+      "referer": "https://console.aws.amazon.com/",
+      "content-type": "application/json",
+      "sec-fetch-mode": "cors",
+      "x-amzn-trace-id": "Root=1-61ea8a58-04beec150ab4d3985439f59e",
+      "x-amz-cf-id": "XoWvOjTYMzEcwp4XtbX90Q7KiiBTrmi_mg4-52zEhqLMfnjufKqNTQ==",
+      "authorization": "eyJraWQiOiJFa1wvMUdDSWJjVGNhOXNSU3ppNVVPTGZmcm5lT1hURXI2cUUwT0hEaTYrYz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIwYjQ0YWM3YS1jNzkzLTRlNGQtOWIyZC0wNjM0YmUwNzU5OGYiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfbmhCc2NpdUFSIiwiY29nbml0bzp1c2VybmFtZSI6Im1pY2hhbCIsIm9yaWdpbl9qdGkiOiIxNzhlZGM1Yy1lY2ZjLTRmOTYtOWFjOS1hMDE4ZWE4OWIwNmYiLCJhdWQiOiIybzVwbGVqcDFxcDZhamlvcG1sMWsxc2JqbCIsImV2ZW50X2lkIjoiNTIxMWU4Y2EtMTA1ZS00YzQ3LTkwMmEtODg5MzkwYzU5ODc0IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2NDI3NTk3MjgsImV4cCI6MTY0Mjc2MzMyOCwiaWF0IjoxNjQyNzU5NzI4LCJqdGkiOiI2MjI2NTVhNS1kMmEzLTQyZjAtYjVkYi04ZTc0NTg5ZDUyNjAiLCJlbWFpbCI6Im1pY2hhbEBlcHN5aGVhbHRoLmNvbSJ9.Uxu-oYa7Wn1GJWa3HGdqdnxRGZAF70YjXAC9UCB3GBc2Ze7-zKXT9_-XX_7Q2oCOcTc-Ft-na38EDUrAko5iWLOJmPm9Q_PxD_EP3wLQ5cQ4asxjGEmKtYpw5Ywc3NhVinJQrsZuMwDaNu7CAoj9MYdynaSxbOuG9VYs_Tbb7NGSEKil7fUmB7FZnBhXq46JJReLV1zJ0uIltZhufXz38kKg7RjzUwU9_NGibhAnCX8oFt3N2iOltvVLqarNmJAPi5QvTo4y8ZX19CccBlaX5BDKpoHQDoPhBkl3nBYIQ_IyzyETb1FFU5-JCLAaf_VJLR4pkp--SD_4CiIfSsSSQA",
+      "sec-fetch-dest": "empty",
+      "x-amz-user-agent": "AWS-Console-AppSync/",
+      "sec-ch-ua-platform": "\"macOS\"",
+      "cloudfront-is-desktop-viewer": "true",
+      "sec-fetch-site": "cross-site",
+      "sec-ch-ua": "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"97\", \"Chromium\";v=\"97\"",
+      "x-forwarded-port": "443"
+    },
+    "domainName": null
+  },
+  "prev": {
+    "result": {}
+  }
+}

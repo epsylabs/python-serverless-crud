@@ -1,0 +1,137 @@
+{
+  "resource": "/rest/{proxy+}",
+  "path": "/rest/device",
+  "httpMethod": "POST",
+  "headers": {
+    "Accept": "*/*",
+    "Authorization": "eyJraWQiOiJqblYwWHl6TlBCWUFRMFVZckg4ZzdcL3NLMW1SMmtjZ0dTazQ3UFh3K0hZdz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1YjliMTNmMS1kZDYwLTQzZTQtYTk4Ni1lYTJhMGUyZWU5MGEiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfRkNsN2dLdEhDIiwicGhvbmVfbnVtYmVyX3ZlcmlmaWVkIjp0cnVlLCJjb2duaXRvOnVzZXJuYW1lIjoiNzkxNzkxYWMtYjZjNy00NTRlLTg5ZDAtOTI3ODUwODY5ZDA2IiwiY3VzdG9tOmFuYWx5dGljc19pZCI6ImFuYWx5dGljcy1pZCIsImN1c3RvbTpsZWdhY3lfaWQiOiIxMDEyIiwiYXVkIjoiNzBrcjk4MDV0dmo3ZTFpMDZ0NzdlbDdodmwiLCJldmVudF9pZCI6ImRhNmE5MTE1LWIzM2UtNGQyZC1iOTM3LTk5ZjJiZWE1MTFhMSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjQyNjMxODM4LCJjdXN0b206YXBwc2ZseWVyX2lkIjoiYXBwc2ZseWVyLWlkIiwibmFtZSI6Ik1pY2hhbCIsImN1c3RvbTptYXJrZXRpbmdfb3B0X2luIjoiVHJ1ZSIsInBob25lX251bWJlciI6Iis0NDc0NzQ5OTQ2MTEiLCJleHAiOjE2NDI2MzcyNDUsImlhdCI6MTY0MjYzMzY0NSwiZW1haWwiOiJtaWNoYWwrdXNlci1tYW5hZ2VyLTJAZXBzeWhlYWx0aC5jb20ifQ.J6xP4KRtgP0olAtm8AHZlyT4_mQoQ7Fydrq0iQQI3qsAEv9OPvQxcqTLvEvy6TDxaCdBdOi5qyHQu3dH2X78NXig5UO_rVA780xgE7X61ziKqlBGxahNOlPE3wQ1RzUyk93gbptKFJOLQqmv-575wVneKQAaXesgaOYK0U_9HZBiJwBN2iB92rFnwQ_dOHZg2GxjafGZzawHQiu1Ngh81_Y6wTEYN3FK3kIbdhLVDkNR6_3LOQ9Tr4muEVVF7bnJGcuZRVgwZE2gocYq7UzjE9LK6Nk2l13n8c-DeaMqq3prGbuIehpoo71-Rf0poiNZtqcbNNsDcTi-YNoc-nbLBw",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "PL",
+    "content-type": "application/x-www-form-urlencoded",
+    "Host": "v772jbxum9.execute-api.us-east-1.amazonaws.com",
+    "User-Agent": "curl/7.77.0",
+    "Via": "2.0 3876e3e44d62609ce1323d22638232f8.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "rPZSZYDp09Dt4665pK5r8sFgIqvhRngz9D9Zu4ibhNsbXc6TvlMoMg==",
+    "X-Amzn-Trace-Id": "Root=1-61e89a13-3e6bae30226f40a813fbb254",
+    "X-Forwarded-For": "188.146.237.228, 54.239.171.70",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept": [
+      "*/*"
+    ],
+    "Authorization": [
+      "eyJraWQiOiJqblYwWHl6TlBCWUFRMFVZckg4ZzdcL3NLMW1SMmtjZ0dTazQ3UFh3K0hZdz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1YjliMTNmMS1kZDYwLTQzZTQtYTk4Ni1lYTJhMGUyZWU5MGEiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfRkNsN2dLdEhDIiwicGhvbmVfbnVtYmVyX3ZlcmlmaWVkIjp0cnVlLCJjb2duaXRvOnVzZXJuYW1lIjoiNzkxNzkxYWMtYjZjNy00NTRlLTg5ZDAtOTI3ODUwODY5ZDA2IiwiY3VzdG9tOmFuYWx5dGljc19pZCI6ImFuYWx5dGljcy1pZCIsImN1c3RvbTpsZWdhY3lfaWQiOiIxMDEyIiwiYXVkIjoiNzBrcjk4MDV0dmo3ZTFpMDZ0NzdlbDdodmwiLCJldmVudF9pZCI6ImRhNmE5MTE1LWIzM2UtNGQyZC1iOTM3LTk5ZjJiZWE1MTFhMSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjQyNjMxODM4LCJjdXN0b206YXBwc2ZseWVyX2lkIjoiYXBwc2ZseWVyLWlkIiwibmFtZSI6Ik1pY2hhbCIsImN1c3RvbTptYXJrZXRpbmdfb3B0X2luIjoiVHJ1ZSIsInBob25lX251bWJlciI6Iis0NDc0NzQ5OTQ2MTEiLCJleHAiOjE2NDI2MzcyNDUsImlhdCI6MTY0MjYzMzY0NSwiZW1haWwiOiJtaWNoYWwrdXNlci1tYW5hZ2VyLTJAZXBzeWhlYWx0aC5jb20ifQ.J6xP4KRtgP0olAtm8AHZlyT4_mQoQ7Fydrq0iQQI3qsAEv9OPvQxcqTLvEvy6TDxaCdBdOi5qyHQu3dH2X78NXig5UO_rVA780xgE7X61ziKqlBGxahNOlPE3wQ1RzUyk93gbptKFJOLQqmv-575wVneKQAaXesgaOYK0U_9HZBiJwBN2iB92rFnwQ_dOHZg2GxjafGZzawHQiu1Ngh81_Y6wTEYN3FK3kIbdhLVDkNR6_3LOQ9Tr4muEVVF7bnJGcuZRVgwZE2gocYq7UzjE9LK6Nk2l13n8c-DeaMqq3prGbuIehpoo71-Rf0poiNZtqcbNNsDcTi-YNoc-nbLBw"
+    ],
+    "CloudFront-Forwarded-Proto": [
+      "https"
+    ],
+    "CloudFront-Is-Desktop-Viewer": [
+      "true"
+    ],
+    "CloudFront-Is-Mobile-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-SmartTV-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-Tablet-Viewer": [
+      "false"
+    ],
+    "CloudFront-Viewer-Country": [
+      "PL"
+    ],
+    "content-type": [
+      "application/x-www-form-urlencoded"
+    ],
+    "Host": [
+      "v772jbxum9.execute-api.us-east-1.amazonaws.com"
+    ],
+    "User-Agent": [
+      "curl/7.77.0"
+    ],
+    "Via": [
+      "2.0 3876e3e44d62609ce1323d22638232f8.cloudfront.net (CloudFront)"
+    ],
+    "X-Amz-Cf-Id": [
+      "rPZSZYDp09Dt4665pK5r8sFgIqvhRngz9D9Zu4ibhNsbXc6TvlMoMg=="
+    ],
+    "X-Amzn-Trace-Id": [
+      "Root=1-61e89a13-3e6bae30226f40a813fbb254"
+    ],
+    "X-Forwarded-For": [
+      "188.146.237.228, 54.239.171.70"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ]
+  },
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": {
+    "proxy": "device"
+  },
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "c2p7es",
+    "authorizer": {
+      "claims": {
+        "sub": "0b44ac7a-c793-4e4d-9b2d-0634be07598f",
+        "email_verified": "true",
+        "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_FCl7gKtHC",
+        "phone_number_verified": "true",
+        "cognito:username": "791791ac-b6c7-454e-89d0-927850869d06",
+        "custom:analytics_id": "analytics-id",
+        "custom:legacy_id": "1012",
+        "aud": "70kr9805tvj7e1i06t77el7hvl",
+        "event_id": "da6a9115-b33e-4d2d-b937-99f2bea511a1",
+        "token_use": "id",
+        "auth_time": "1642631838",
+        "custom:appsflyer_id": "appsflyer-id",
+        "name": "Michal",
+        "custom:marketing_opt_in": "True",
+        "phone_number": "+447474994611",
+        "exp": "Thu Jan 20 00:07:25 UTC 2022",
+        "iat": "Wed Jan 19 23:07:25 UTC 2022",
+        "email": "michal+user-manager-2@epsyhealth.com"
+      }
+    },
+    "resourcePath": "/rest/{proxy+}",
+    "httpMethod": "POST",
+    "extendedRequestId": "MN0DGGDeIAMF6lA=",
+    "requestTime": "19/Jan/2022:23:09:07 +0000",
+    "path": "/playground/rest/device/12312335",
+    "accountId": "772962929486",
+    "protocol": "HTTP/1.1",
+    "stage": "playground",
+    "domainPrefix": "v772jbxum9",
+    "requestTimeEpoch": 1642633747695,
+    "requestId": "a08435fa-d8ea-4648-8df8-6442458fce50",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "188.146.237.228",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "curl/7.77.0",
+      "user": null
+    },
+    "domainName": "v772jbxum9.execute-api.us-east-1.amazonaws.com",
+    "apiId": "v772jbxum9"
+  },
+  "body": "{\"id\": \"242942344\", \"created\": 23423452534}",
+  "isBase64Encoded": false
+}
