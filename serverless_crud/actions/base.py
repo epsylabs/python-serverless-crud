@@ -3,7 +3,7 @@ import json
 
 from aws_lambda_powertools.event_handler.exceptions import BadRequestError
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
-from aws_lambda_powertools.utilities.parser import parse, ValidationError
+from aws_lambda_powertools.utilities.parser import ValidationError, parse
 from aws_lambda_powertools.utilities.validation import validate
 
 from serverless_crud.model import BaseModel

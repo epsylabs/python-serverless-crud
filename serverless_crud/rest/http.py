@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from aws_lambda_powertools.event_handler.api_gateway import Response
 

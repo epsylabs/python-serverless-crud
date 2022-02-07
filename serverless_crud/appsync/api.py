@@ -60,6 +60,7 @@ class AppSyncAPI(BaseAPI):
         handlers = {}
 
         if get_callback:
+
             @router.resolver(type_name="Query", field_name=f"get{alias}")
             @response_handler
             def get(*args, **kwargs):

@@ -1,4 +1,4 @@
-from serverless_crud.actions import GetAction, CreateAction, UpdateAction, DeleteAction, ListAction
+from serverless_crud.actions import CreateAction, DeleteAction, GetAction, ListAction, UpdateAction
 from serverless_crud.api import BaseAPI
 from serverless_crud.aws.iam import PolicyBuilder
 from serverless_crud.builders.graphql import SchemaBuilder

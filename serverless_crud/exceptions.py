@@ -1,7 +1,7 @@
 import json
 
 from aws_lambda_powertools.event_handler.api_gateway import Response
-from aws_lambda_powertools.event_handler.exceptions import NotFoundError, BadRequestError
+from aws_lambda_powertools.event_handler.exceptions import BadRequestError, NotFoundError
 from pydantic import ValidationError
 
 

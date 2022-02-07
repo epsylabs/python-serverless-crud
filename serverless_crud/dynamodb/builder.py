@@ -1,11 +1,12 @@
-from troposphere.dynamodb import AttributeDefinition, KeySchema, Projection, GlobalSecondaryIndex
-from troposphere.dynamodb import (
-    LocalSecondaryIndex as AWSLocalSecondaryIndex,
-    GlobalSecondaryIndex as AWSGlobalSecondaryIndex,
-    ProvisionedThroughput as AWSProvisionedThroughput,
-)
+from troposphere.dynamodb import AttributeDefinition
+from troposphere.dynamodb import GlobalSecondaryIndex
+from troposphere.dynamodb import GlobalSecondaryIndex as AWSGlobalSecondaryIndex
+from troposphere.dynamodb import KeySchema
+from troposphere.dynamodb import LocalSecondaryIndex as AWSLocalSecondaryIndex
+from troposphere.dynamodb import Projection
+from troposphere.dynamodb import ProvisionedThroughput as AWSProvisionedThroughput
 
-from serverless_crud.dynamodb.annotation import DynamoIndex, DynamodbMetadata, LocalSecondaryIndex, GlobalSecondaryIndex
+from serverless_crud.dynamodb.annotation import DynamodbMetadata, DynamoIndex, GlobalSecondaryIndex, LocalSecondaryIndex
 from serverless_crud.model import BaseModel
 
 PYTHON_TO_DYNAMODB = {

@@ -1,4 +1,4 @@
-from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
+from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 
 serializer = TypeSerializer()
 

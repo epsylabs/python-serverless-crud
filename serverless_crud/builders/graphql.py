@@ -1,11 +1,10 @@
 import re
-from pathlib import Path
-
 import uuid
+from pathlib import Path
 from typing import List
 
 import graphene
-from graphene_pydantic import PydanticObjectType, PydanticInputObjectType
+from graphene_pydantic import PydanticInputObjectType, PydanticObjectType
 
 from serverless_crud.model import BaseModel
 
@@ -58,6 +57,7 @@ class SchemaBuilder:
             )
 
         if self.models[model].get("lookup_list"):
+
             class ConnectionModel(BaseModel):
                 items: List[model] = None
                 nextToken: str = None

@@ -3,7 +3,7 @@ from aws_lambda_powertools.utilities.validation import SchemaValidationError
 
 from serverless_crud.actions.base import Action
 from serverless_crud.dynamodb import with_dynamodb
-from serverless_crud.exceptions import ValidationException, EntityNotFoundException
+from serverless_crud.exceptions import EntityNotFoundException, ValidationException
 from serverless_crud.utils import identity
 
 

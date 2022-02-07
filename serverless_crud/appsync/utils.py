@@ -1,5 +1,4 @@
 import logging
-
 from functools import wraps
 
 from serverless_crud.model import BaseModel

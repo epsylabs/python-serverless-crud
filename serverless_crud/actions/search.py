@@ -8,8 +8,8 @@ from pydantic import BaseModel, ValidationError
 
 from serverless_crud.actions.base import Action
 from serverless_crud.dynamodb import with_dynamodb
-from serverless_crud.dynamodb.annotation import KeyFieldTypes, DynamoIndex
-from serverless_crud.exceptions import ValidationException, InvalidPayloadException
+from serverless_crud.dynamodb.annotation import DynamoIndex, KeyFieldTypes
+from serverless_crud.exceptions import InvalidPayloadException, ValidationException
 from serverless_crud.logger import logger
 from serverless_crud.utils import identity
 

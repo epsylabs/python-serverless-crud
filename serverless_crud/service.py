@@ -1,7 +1,7 @@
 import os
 
 from serverless_crud.appsync import AppSyncAPI
-from serverless_crud.aws.iam import PolicyBuilder, DynamoDBPolicyBuilder
+from serverless_crud.aws.iam import DynamoDBPolicyBuilder, PolicyBuilder
 from serverless_crud.graphql import GraphQLAPI
 from serverless_crud.rest import RestAPI
 from serverless_crud.utils import Identifier
