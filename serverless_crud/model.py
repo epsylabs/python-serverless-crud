@@ -42,7 +42,7 @@ class BaseModel(ParserBaseModel):
                 continue
             schema["properties"].pop(field, None)
 
-            if field in schema["required"]:
+            if field in schema.get("required", {}):
                 schema["required"].remove(field)
 
         return schema

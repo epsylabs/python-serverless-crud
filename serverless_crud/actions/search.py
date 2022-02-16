@@ -62,7 +62,7 @@ class SearchAction(Action, ABC):
         return {m: m.strip("#") for m in matches}
 
     @with_dynamodb
-    def handle(self, event: APIGatewayProxyEvent, context, dynamodb, table, index_name=None):
+    def handle(self, event: APIGatewayProxyEvent, context, dynamodb, table, index_name=None, *args, **kwargs):
         try:
             index = self.model._meta.get_index(index_name)
             response = self._fetch_items(event, dynamodb, table, index)

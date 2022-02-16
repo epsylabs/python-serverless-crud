@@ -58,7 +58,6 @@ class AppSyncAPI(BaseAPI):
     ):
         router = Router()
         handlers = {}
-
         if get_callback:
 
             @router.resolver(type_name="Query", field_name=f"get{alias}")
@@ -72,7 +71,6 @@ class AppSyncAPI(BaseAPI):
             handlers["get"] = get
 
         if create_callback:
-
             @router.resolver(type_name="Mutation", field_name=f"create{alias}")
             @response_handler
             def create(input, *args, **kwargs):
@@ -81,7 +79,6 @@ class AppSyncAPI(BaseAPI):
             handlers["create"] = create
 
         if update_callback:
-
             @router.resolver(type_name="Mutation", field_name=f"update{alias}")
             @response_handler
             def update(input, *args, **kwargs):
@@ -94,7 +91,6 @@ class AppSyncAPI(BaseAPI):
             handlers["update"] = update
 
         if delete_callback:
-
             @router.resolver(type_name="Mutation", field_name=f"delete{alias}")
             @response_handler
             def delete(*args, **kwargs):
@@ -106,7 +102,6 @@ class AppSyncAPI(BaseAPI):
             handlers["delete"] = delete
 
         if lookup_list_callback:
-
             @router.resolver(type_name="Query", field_name=f"list{alias}")
             @response_handler
             def lookup_list(index=None, *args, **kwargs):
