@@ -1,9 +1,10 @@
 import abc
 import re
 from abc import ABC
-from typing import Optional
+from typing import Optional, Union
 
-from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
+from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent, AppSyncResolverEvent
+from aws_lambda_powertools.utilities.data_classes.common import BaseProxyEvent
 from pydantic import BaseModel, ValidationError
 
 from serverless_crud.actions.base import Action
@@ -52,7 +53,7 @@ class SearchAction(Action, ABC):
         query["ExpressionAttributeNames"] = names
 
     @abc.abstractmethod
-    def _fetch_items(self, event, dynamodb, table, index):
+    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index):
         pass
 
     def _extract_fields(self, expression):
@@ -62,7 +63,7 @@ class SearchAction(Action, ABC):
         return {m: m.strip("#") for m in matches}
 
     @with_dynamodb
-    def handle(self, event: APIGatewayProxyEvent, context, dynamodb, table, index_name=None):
+    def handle(self, event: APIGatewayProxyEvent, context, dynamodb, table, index_name=None, *args, **kwargs):
         try:
             index = self.model._meta.get_index(index_name)
             response = self._fetch_items(event, dynamodb, table, index)
@@ -75,22 +76,22 @@ class SearchAction(Action, ABC):
 
 
 class ScanAction(SearchAction):
-    def _fetch_items(self, event, dynamodb, table, index, _next=None):
-        payload = ScanPayload(**event.json_body)
-
+    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, _next=None):
         query = {**dict(Limit=100), **self._get_query_target(table, index)}
 
-        if payload.expression:
-            query.update(
-                dict(
-                    FilterExpression=payload.expression,
-                    ExpressionAttributeNames=self._extract_fields(str(payload.expression)),
-                    ExpressionAttributeValues=payload.values,
+        if isinstance(event, BaseProxyEvent):
+            payload = ScanPayload(**event.json_body)
+            if payload.expression:
+                query.update(
+                    dict(
+                        FilterExpression=payload.expression,
+                        ExpressionAttributeNames=self._extract_fields(str(payload.expression)),
+                        ExpressionAttributeValues=payload.values,
+                    )
                 )
-            )
 
-        if payload.checkOwner:
-            self._add_owner_condition(query, event, "FilterExpression")
+            if payload.checkOwner:
+                self._add_owner_condition(query, event, "FilterExpression")
 
         logger.debug("dynamodb.scan", extra=query)
 
@@ -98,7 +99,7 @@ class ScanAction(SearchAction):
 
 
 class QueryAction(SearchAction):
-    def _fetch_items(self, event, dynamodb, table, index, _next=None):
+    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, _next=None):
         payload = QueryPayload(**event.json_body)
 
         expression = str(payload.filter_expression) + " " + str(payload.key_expression)
@@ -136,7 +137,7 @@ class ListAction(SearchAction):
                 "You can only use list method only on tables or indexes with record owner for partition key"
             )
 
-    def _fetch_items(self, event, dynamodb, table, index, _next=None):
+    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, _next=None):
         self.validate(index)
 
         query = {**dict(Limit=100), **self._get_query_target(table, index)}

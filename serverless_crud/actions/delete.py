@@ -17,7 +17,7 @@ class DeleteAction(Action):
         params["ExpressionAttributeValues"] = {":user": identity(event)}
 
     @with_dynamodb
-    def handle(self, primary_key, event: APIGatewayProxyEvent, context, table, dynamodb):
+    def handle(self, primary_key, event: APIGatewayProxyEvent, context, table, dynamodb, *args, **kwargs):
         try:
             self.validate(primary_key.raw(), self.model.key_schema())
 

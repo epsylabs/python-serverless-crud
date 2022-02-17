@@ -9,7 +9,7 @@ from serverless_crud.model import BaseModel
 
 class CreateAction(Action):
     @with_dynamodb
-    def handle(self, payload, event: APIGatewayProxyEvent, context, table=None, dynamodb=None):
+    def handle(self, payload, event: APIGatewayProxyEvent, context, table=None, dynamodb=None, *args, **kwargs):
         try:
             payload = self._set_owner(event, payload)
 

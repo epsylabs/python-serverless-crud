@@ -14,7 +14,7 @@ class SchemaBuilder:
         self.models = {}
         self.output_type = {}
 
-    def registry(self, model, /, **actions):
+    def registry(self, model: BaseModel, /, **actions):
         self.models[model] = actions
 
     def build_schema(self):
@@ -44,14 +44,14 @@ class SchemaBuilder:
             type(f"{model_name}Input", (PydanticInputObjectType,), {"Meta": {"model": model_type}}),
         )
 
-    def build_query_fields(self, model_dto, model):
+    def build_query_fields(self, model_dto, model: BaseModel):
         queries = {}
         types = []
 
         if self.models[model].get("get"):
             queries.update(
                 {
-                    f"get{model.__name__}": graphene.Field(model_dto, id=graphene.String(required=True)),
+                    f"get{model.__name__}": graphene.Field(model_dto, **{k: graphene.String(required=True) for k in model._meta.key.key_fields.keys()}),
                     f"resolve_get{model.__name__}": self.models[model].get("get"),
                 }
             )

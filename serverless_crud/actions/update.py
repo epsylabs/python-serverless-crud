@@ -9,7 +9,7 @@ from serverless_crud.utils import identity
 
 class UpdateAction(Action):
     @with_dynamodb
-    def handle(self, primary_key, payload, event: APIGatewayProxyEvent, context, table=None, dynamodb=None):
+    def handle(self, primary_key, payload, event: APIGatewayProxyEvent, context, table=None, dynamodb=None, *args, **kwargs):
         payload = self._set_owner(event, payload)
 
         allow_update = lambda x: x not in primary_key.raw().keys() and x != self.model._meta.owner_field
