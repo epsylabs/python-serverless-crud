@@ -82,7 +82,7 @@ class SchemaBuilder:
         def mutate_(parent, info, input):
             return model(id=str(uuid.uuid4()), created=23423423, user=str(uuid.uuid4()))
 
-        InputArguments = type("Arguments", (), {"input": input_dto(required=True), "nextToken": graphene.String()})
+        InputArguments = type("Arguments", (), {"input": input_dto(required=True)})
         IdArguments = type("Arguments", (), {"id": graphene.String(required=True)})
 
         mutations = {}
