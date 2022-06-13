@@ -6,8 +6,8 @@ keywords = ["library", "serverless"]
 authors = ["Epsy <engineering@epsyhealth.com>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/epsylabs/serverless-builder"
-repository = "https://github.com/epsylabs/serverless-builder"
+homepage = "https://github.com/epsylabs/python-serverless-crud"
+repository = "https://github.com/epsylabs/python-serverless-crud"
 classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
