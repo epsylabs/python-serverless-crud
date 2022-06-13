@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-serverless-crud"
-version = "1.1.0"
+version = "1.1.1"
 description="Simple and powerful tool for quick serverless data management via API. "
 keywords = ["library", "serverless"]
 authors = ["Epsy <engineering@epsyhealth.com>"]
