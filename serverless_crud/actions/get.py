@@ -10,9 +10,9 @@ from serverless_crud.utils import identity
 
 class GetAction(Action):
     @with_dynamodb
-    def handle(self, primary_key = None, event: APIGatewayProxyEvent = None, context=None, table=None, *args, **kwargs):
+    def handle(self, primary_key=None, event: APIGatewayProxyEvent = None, context=None, table=None, *args, **kwargs):
         try:
-            self.validate(primary_key.raw(), self.model.key_schema())
+            self.validate(primary_key.raw(), self.model.key_schema(), event)
             query = dict(
                 Key=primary_key.raw(),
             )
