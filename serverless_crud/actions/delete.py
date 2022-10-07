@@ -23,6 +23,7 @@ class DeleteAction(Action):
 
             params = dict(
                 Key=primary_key.raw(),
+                ReturnValues="ALL_OLD"
             )
 
             self.append_delete_condition(params, event)
