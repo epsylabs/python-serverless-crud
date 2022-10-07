@@ -19,7 +19,7 @@ class DeleteAction(Action):
     @with_dynamodb
     def handle(self, primary_key, event: APIGatewayProxyEvent, context, table, dynamodb, *args, **kwargs):
         try:
-            self.validate(primary_key.raw(), self.model.key_schema())
+            self.validate(primary_key.raw(), self.model.key_schema(), event)
 
             params = dict(
                 Key=primary_key.raw(),

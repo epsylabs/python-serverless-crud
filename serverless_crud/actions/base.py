@@ -17,7 +17,7 @@ class Action(abc.ABC):
     def __call__(self, *args, **kwargs):
         return self.handle(*args, **kwargs)
 
-    def validate(self, payload, schema):
+    def validate(self, payload, schema, event):
         return validate(event=payload, schema=schema)
 
     @abc.abstractmethod
