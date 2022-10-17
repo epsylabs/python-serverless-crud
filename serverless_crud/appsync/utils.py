@@ -13,9 +13,9 @@ def response_handler(f):
         try:
             response, obj = f(*args, **kwargs)
         except ValidationError as e:
-            errors = [dict(errorType=error["type"], message=error["msg"]) for error in e.errors()]
             return dict(
-                errors=errors
+                errorType="ValidationError",
+                errorMessage=str(e)
             )
         except TypeError as e:
             response = None
