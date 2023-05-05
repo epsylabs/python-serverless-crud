@@ -79,7 +79,9 @@ class SearchAction(Action, ABC):
     ):
         try:
             index = self.model._meta.get_index(index_name)
-            response = self._fetch_items(event, dynamodb, table, index, next_token, limit)
+            response = self._fetch_items(
+                event, dynamodb, table, index, next_token=kwargs.get("nextToken", next_token), limit=limit
+            )
 
             return response, dict(
                 items=[self.model(**i).dict() for i in response["Items"]], nextToken=response.get("LastEvaluatedKey")
