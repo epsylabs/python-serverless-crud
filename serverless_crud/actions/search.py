@@ -53,7 +53,9 @@ class SearchAction(Action, ABC):
         query["ExpressionAttributeNames"] = names
 
     @abc.abstractmethod
-    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index):
+    def _fetch_items(
+        self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, next_token=None, limit=100
+    ):
         pass
 
     def _extract_fields(self, expression):
@@ -63,10 +65,21 @@ class SearchAction(Action, ABC):
         return {m: m.strip("#") for m in matches}
 
     @with_dynamodb
-    def handle(self, event: APIGatewayProxyEvent, context, dynamodb, table, index_name=None, *args, **kwargs):
+    def handle(
+        self,
+        event: APIGatewayProxyEvent,
+        context,
+        dynamodb,
+        table,
+        index_name=None,
+        next_token=None,
+        limit=100,
+        *args,
+        **kwargs,
+    ):
         try:
             index = self.model._meta.get_index(index_name)
-            response = self._fetch_items(event, dynamodb, table, index)
+            response = self._fetch_items(event, dynamodb, table, index, next_token, limit)
 
             return response, dict(
                 items=[self.model(**i).dict() for i in response["Items"]], nextToken=response.get("LastEvaluatedKey")
@@ -76,8 +89,13 @@ class SearchAction(Action, ABC):
 
 
 class ScanAction(SearchAction):
-    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, _next=None):
-        query = {**dict(Limit=100), **self._get_query_target(table, index)}
+    def _fetch_items(
+        self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, next_token=None, limit=100
+    ):
+        query = {**dict(Limit=limit), **self._get_query_target(table, index)}
+
+        if next_token:
+            query["ExclusiveStartKey"] = next_token
 
         if isinstance(event, BaseProxyEvent):
             payload = ScanPayload(**event.json_body)
@@ -99,13 +117,15 @@ class ScanAction(SearchAction):
 
 
 class QueryAction(SearchAction):
-    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, _next=None):
+    def _fetch_items(
+        self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, next_token=None, limit=100
+    ):
         payload = QueryPayload(**event.json_body)
 
         expression = str(payload.filter_expression) + " " + str(payload.key_expression)
 
         query = {
-            **dict(Limit=100),
+            **dict(Limit=limit),
             **dict(
                 KeyConditionExpression=payload.key_expression,
                 ExpressionAttributeNames=self._extract_fields(expression),
@@ -113,6 +133,9 @@ class QueryAction(SearchAction):
             ),
             **self._get_query_target(table, index),
         }
+
+        if next_token:
+            query["ExclusiveStartKey"] = next_token
 
         if payload.filter_expression:
             query["FilterExpression"] = payload.filter_expression
@@ -137,10 +160,15 @@ class ListAction(SearchAction):
                 "You can only use list method only on tables or indexes with record owner for partition key"
             )
 
-    def _fetch_items(self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, _next=None):
+    def _fetch_items(
+        self, event: Union[BaseProxyEvent, AppSyncResolverEvent], dynamodb, table, index, next_token=None, limit=100
+    ):
         self.validate(index)
 
-        query = {**dict(Limit=100), **self._get_query_target(table, index)}
+        query = {**dict(Limit=limit), **self._get_query_target(table, index)}
+
+        if next_token:
+            query["ExclusiveStartKey"] = next_token
 
         self._add_owner_condition(query, event)
 
