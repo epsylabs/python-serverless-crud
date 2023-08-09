@@ -38,6 +38,7 @@ def dynamo():
                     "Projection": {"ProjectionType": "ALL"},
                 },
             ],
+            BillingMode="PAY_PER_REQUEST",
         )
 
         table = dynamo.Table("Device")

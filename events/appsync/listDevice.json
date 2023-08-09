@@ -1,6 +1,6 @@
 {
   "typeName": "Query",
-  "fieldName": "listDevices",
+  "fieldName": "listDevice",
   "arguments": {},
   "identity": {
     "claims": {

@@ -20,7 +20,7 @@ def test_get_missing_device(app):
 
 
 def test_list_devices(app):
-    mock_event = load_event("appsync/listDevices.json")
+    mock_event = load_event("appsync/listDevice.json")
 
     result = app.appsync.handle(mock_event, {})
 

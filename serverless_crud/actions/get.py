@@ -24,7 +24,9 @@ class GetAction(Action):
             if not item:
                 raise EntityNotFoundException()
 
-            if self.model._meta.owner_field and item.get(self.model._meta.owner_field) != identity(event):
+            if self.model._meta.owner_field and item.get(self.model._meta.owner_field) != identity(
+                event, use_username=self.username_is_identity
+            ):
                 raise EntityNotFoundException()
 
             return response, item

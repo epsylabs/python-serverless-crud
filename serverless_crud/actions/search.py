@@ -45,7 +45,7 @@ class SearchAction(Action, ABC):
 
         query[owner_filter_namespace] = expression + f"#{self.model._meta.owner_field} = :owner"
         attributes = query.get("ExpressionAttributeValues", {})
-        attributes.update({":owner": identity(event)})
+        attributes.update({":owner": identity(event, use_username=self.username_is_identity)})
         query["ExpressionAttributeValues"] = attributes
 
         names = query.get("ExpressionAttributeNames", {})

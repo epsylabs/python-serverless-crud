@@ -14,7 +14,7 @@ class DeleteAction(Action):
 
         params["ConditionExpression"] = f"#user = :user"
         params["ExpressionAttributeNames"] = {"#user": self.model._meta.owner_field}
-        params["ExpressionAttributeValues"] = {":user": identity(event)}
+        params["ExpressionAttributeValues"] = {":user": identity(event, use_username=self.username_is_identity)}
 
     @with_dynamodb
     def handle(self, primary_key, event: APIGatewayProxyEvent, context, table, dynamodb, *args, **kwargs):
