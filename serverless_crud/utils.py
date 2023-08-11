@@ -2,9 +2,26 @@ import jwt
 import stringcase
 
 
-def identity(event):
+def identity(event, use_username):
     owner = "anon."
     try:
+        if use_username:
+            username = None
+            if event.get("identity", {}).get("username"):
+                username = event.get("identity", {}).get("username")
+            else:
+                claims = event.get("requestContext", {}).get("authorizer", {}).get("claims")
+                if not claims:
+                    claims = event.get("identity", {}).get("claims")
+                if claims.get("cognito:username", claims.get("username")):
+                    username = claims.get("cognito:username", claims.get("username"))
+            if username:
+                if username == owner:
+                    raise ValueError("User has the same username as the reserved word for unauthenticated identity.")
+                else:
+                    owner = username
+            return owner
+
         if event.get("requestContext", {}).get("authorizer", {}).get("claims", {}).get("sub"):
             owner = event.get("requestContext", {}).get("authorizer", {}).get("claims", {}).get("sub")
         elif event.get("identity", {}).get("claims", {}).get("sub"):
@@ -14,7 +31,7 @@ def identity(event):
             # it should be safe to ignore signature as request was authenticated via IAM, but it would be nice
             # to add verification at some point
             decoded = jwt.decode(header, options={"verify_signature": False})
-            owner = decoded.get("sub")
+            owner = decoded.get("sub") if not use_username else decoded.get("cognito:username", decoded.get("username"))
     except (KeyError, AttributeError):
         pass
 

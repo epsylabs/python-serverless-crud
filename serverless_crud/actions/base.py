@@ -11,8 +11,9 @@ from serverless_crud.utils import identity
 
 
 class Action(abc.ABC):
-    def __init__(self, model):
+    def __init__(self, model, username_is_identity: bool = False):
         self.model: type(BaseModel) = model
+        self.username_is_identity: bool = username_is_identity
 
     def __call__(self, *args, **kwargs):
         return self.handle(*args, **kwargs)
@@ -28,7 +29,7 @@ class Action(abc.ABC):
         if not self.model._meta.owner_field:
             return payload
 
-        payload[self.model._meta.owner_field] = identity(event)
+        payload[self.model._meta.owner_field] = identity(event, use_username=self.username_is_identity)
 
         return payload
 

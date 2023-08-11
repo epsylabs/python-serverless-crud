@@ -26,7 +26,7 @@ class UpdateAction(Action):
         if self.model._meta.owner_field not in primary_key.raw().keys():
             query["ConditionExpression"] = "#owner = :owner"
             query["ExpressionAttributeNames"]["#owner"] = self.model._meta.owner_field
-            query["ExpressionAttributeValues"][":owner"] = identity(event)
+            query["ExpressionAttributeValues"][":owner"] = identity(event, use_username=self.username_is_identity)
 
         try:
             result = table.update_item(**query)
