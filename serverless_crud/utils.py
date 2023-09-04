@@ -2,7 +2,7 @@ import jwt
 import stringcase
 
 
-def identity(event, use_username):
+def identity(event, use_username: bool = False):
     owner = "anon."
     try:
         if use_username:
